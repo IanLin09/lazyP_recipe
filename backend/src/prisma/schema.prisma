@@ -19,6 +19,7 @@ model User {
   name  String?
   password String
   recipe Recipe[]
+  comments Store_comments[]
   active Boolean @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
@@ -67,6 +68,17 @@ model Recipe_steps {
   description String
   recipe_id   Int
   recipe     Recipe  @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
+  created_at DateTime @default(now())
+  updated_at DateTime @default(now())
+}
+
+model Store_comments {
+  id    Int     @id @default(autoincrement())
+  store_name String
+  store_address String
+  user_id  Int
+  user User   @relation(fields: [user_id], references: [id], onDelete: Cascade)
+  comment String
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
 }

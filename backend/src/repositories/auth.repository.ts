@@ -2,8 +2,6 @@ import { PrismaClient, Prisma } from '@prisma/client'
 import BaseRepository from './base.repository.ts'
 import {UserDTO} from "../type/auth.dto"
 
-const prisma = new PrismaClient()
-
 class AuthRepository extends BaseRepository<UserDTO> {
 
     constructor(prisma: PrismaClient) {

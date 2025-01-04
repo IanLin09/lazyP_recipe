@@ -2,7 +2,6 @@ import { PrismaClient, Prisma } from '@prisma/client'
 import BaseRepository from './base.repository.ts'
 import {RecipeDTO,RecipeConditionsDTO} from "../type/recipe.dto.ts"
 
-const prisma = new PrismaClient()
 
 class RecipeRepository extends BaseRepository<RecipeDTO> {
 
