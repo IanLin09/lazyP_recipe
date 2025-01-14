@@ -1,6 +1,7 @@
 import bcrypt from 'bcrypt';
 import {UserDTO} from "../type/auth.dto"
 import AuthRepository from '../repositories/auth.repository';
+import { ThrowError } from '../helper/error.ts';
 
 
 class AuthService{
@@ -17,8 +18,7 @@ class AuthService{
         if (result){
             return userData;
         }else{
-            console.log("password error");
-            //throw new error
+            throw new ThrowError(400,'Wrong email or password!')
         }
     }
 

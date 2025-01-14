@@ -8,21 +8,46 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
     constructor(prisma: PrismaClient) {
         super(prisma, 'recipe');
     }
-
+    
     all = async(conditions: RecipeConditionsDTO): Promise<RecipeDTO> => {
       const result = await this.model.findMany({
-        where:{
-          tags:{
-            every:{
-              ...(conditions.tags?.length && { category: { in: conditions.tags.map(Number) } }),
-              ...(conditions.materials?.length && { materials: { hasEvery: conditions.materials } })
-            }
-          }
+        where: {
+          AND: [
+            ...(conditions.keyword?.length
+              ? [
+                  {
+                    OR: [
+                      { name: { contains: conditions.keyword, mode: 'insensitive' } }, // Match recipe name
+                      {
+                        materials: {
+                          some: {
+                            name: { contains: conditions.keyword, mode: 'insensitive' }, // Match material name
+                          },
+                        },
+                      },
+                    ],
+                  },
+                ]
+              : []),
+            ...(conditions.tags
+              ? [
+                  {
+                    tags: {
+                      some: {
+                        category: conditions.tags, // Match any tag category
+                      },
+                    },
+                  },
+                ]
+              : []),
+          ],
         },
-        include:{
-          tags:true,
+        include: {
+          tags: true,
+          materials: true,
         },
       });
+      
       return result;
     }
 

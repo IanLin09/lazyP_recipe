@@ -4,6 +4,7 @@ import { authorization } from "../middlewares/authorization.middleware.ts"
 import RecipeController from "../controllers/recipe.controller.ts"
 import RecipeService from "../services/recipe.service.ts";
 import RecipeRepository from "../repositories/recipe.repository.ts";
+import upload from "../helper/image.ts";
  
 class RecipeRoute extends Route{
     
@@ -17,12 +18,13 @@ class RecipeRoute extends Route{
         let service: RecipeService = new RecipeService(repo);
         let controller: RecipeController = new RecipeController(service);
         
-        this.router.use(authorization);
-        this.router.get('/recipe', authorization,controller.all);
-        this.router.post('/recipe',controller.create);
+        
+        this.router.get('/recipe', controller.all);
         this.router.get('/recipe/:id',controller.find);
-        this.router.put('/recipe/delete/:id',controller.delete);
-        this.router.put('/recipe/:id',controller.update);
+        this.router.post('/recipe',[authorization,upload.array('file')],controller.create);
+        this.router.post('/recipe_step',[authorization,upload.array('image[]')],controller.createRecipeSteps);
+        this.router.put('/recipe/delete/:id',authorization,controller.delete);
+        this.router.put('/recipe/:id',authorization,controller.update);
     }
 
 }

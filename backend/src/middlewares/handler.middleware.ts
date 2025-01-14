@@ -1,9 +1,10 @@
-import { Request, Response, NextFunction } from "express";
+import { Request, Response, NextFunction,ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
 import { Prisma } from "@prisma/client"
+import { ThrowError } from "../helper/error.ts";
 
 // Correctly type the error handler
-export const errorHandler = (
+export const errorHandler:ErrorRequestHandler = (
   err: Error,
   req: Request,
   res: Response,
@@ -36,6 +37,17 @@ export const errorHandler = (
     });
   }
 
-  console.error('Full error:', err)
-  res.status(404).send({status:404,message:err});
+  if (err instanceof ThrowError) {
+    res.status(err.statusCode).json({
+      status: err.statusCode,
+      message: err.message,
+    });
+  }
+
+  console.log(err)
+  res.status(500).send({
+    status:500,
+    message:"Internal server error",
+    errors:err.message
+  });
 };

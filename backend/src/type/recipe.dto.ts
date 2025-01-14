@@ -33,6 +33,6 @@ export type RecipeStepDTO = {
 };
 
 export type RecipeConditionsDTO = {
-    tags?: number[],
-    materials: string[] ,
+    tags?: number,
+    keyword?: string,
 }

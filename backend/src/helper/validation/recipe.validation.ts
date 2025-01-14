@@ -26,11 +26,11 @@ export const recipeTagValidation = z.object({
 })
 
 export const recipeStepValidation = z.object({
-    step: z.number({
+    step: z.any({
         required_error: "step is required",
         invalid_type_error: "step must be a number",
     }),
-    image_link:z.string().optional(),
+    images:z.any().optional(),
     description: z.string(
         {
             required_error: "name is required",
@@ -87,6 +87,8 @@ export const updateRecipeValidation = z.object({
 })
 
 export const recipeQuerySchema = z.object({
-    tags: z.string().optional().transform((tags) => tags ? tags.split(",").map(Number) : undefined),
-    materials: z.string().optional().transform((materials) => materials ? materials.split(",") : undefined),
+    tags: z.string().optional(),
+    keyword: z.string().optional()
+    //keyword: z.string().optional().transform((materials) => materials ? materials.split(",") : undefined),
+    //tags: z.string().optional().transform((tags) => tags ? tags.split(",").map(Number) : undefined),
   });

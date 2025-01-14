@@ -3,7 +3,7 @@ import { z } from "zod";
 import * as RecipeDTOs from "../type/recipe.dto"
 import RecipeService from "../services/recipe.service.ts";
 import BaseController from "./base.controller.ts";
-import {recipeValidation, updateRecipeValidation,recipeQuerySchema} from "../helper/validation/recipe.validation.ts"
+import {recipeValidation, updateRecipeValidation,recipeQuerySchema,recipeStepValidation} from "../helper/validation/recipe.validation.ts"
 import { UserDTO } from "@/type/auth.dto.ts";
 
 
@@ -19,10 +19,10 @@ class RecipeController extends BaseController {
   public all = async (req: Request, res: Response,next: NextFunction) =>{
     
     try{
-      const { tags, materials } = recipeQuerySchema.parse(req.query);
+      const { tags, keyword } = recipeQuerySchema.parse(req.query);
       const conditions: RecipeDTOs.RecipeConditionsDTO = {
-        tags:tags,
-        materials:materials
+        tags:parseInt(tags),
+        keyword:keyword
       }
       const data = await this.recipeService.all(conditions);
       this.success(res,data);
@@ -36,32 +36,19 @@ class RecipeController extends BaseController {
     const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
     try{
       const input = recipeValidation.parse(req.body);
-      let materials:RecipeDTOs.RecipeMaterialDTO[] = [],tags:RecipeDTOs.RecipeTagDTO[] = [],steps :RecipeDTOs.RecipeStepDTO[] = [];
 
-      input.material.forEach((v) => {
-        let tmp:RecipeDTOs.RecipeMaterialDTO = {
-          name: v.name,
-          number:v.number,
-          unit:v.unit
-        }
-        materials.push(tmp)
-      })
+      const materials: RecipeDTOs.RecipeMaterialDTO[] = input.material.map(
+        ({ name, number, unit }) => ({ name, number, unit })
+      );
+      
+      const tags:RecipeDTOs.RecipeTagDTO[] = input.tags.map(
+        ({ category }) => ({ category  })
+      );
 
-      input.tags.forEach((v) => {
-        let tmp:RecipeDTOs.RecipeTagDTO = {
-          category: v.category
-        }
-        tags.push(tmp)
-      })
+      const steps:RecipeDTOs.RecipeStepDTO[] = input.steps.map(
+        ({ description,step }) => ({ description,step  })
+      );
 
-      input.steps.forEach((v) => {
-        let tmp:RecipeDTOs.RecipeStepDTO = {
-          description: v.description,
-          image:v.image_link,
-          step:v.step
-        }
-        steps.push(tmp)
-      })
 
       const inputData: RecipeDTOs.RecipeDTO ={
         name: input.name,
@@ -73,8 +60,9 @@ class RecipeController extends BaseController {
         servings:input.servings,
         video_link:input.video_link
       }
-      const createdData = await this.recipeService.create(inputData)
-      this.success(res,createdData);
+      res.send('123');
+     // const createdData = await this.recipeService.create(inputData)
+      //this.success(res,createdData);
     }catch(e: unknown){
         next(e)
     }
@@ -119,6 +107,16 @@ class RecipeController extends BaseController {
       this.success(res);
     }catch(e: unknown){
       next(e);
+    }
+  }
+
+  createRecipeSteps = async(req: Request, res: Response,next: NextFunction) => {
+    try{
+      const input = await recipeStepValidation.parse(req.body);
+
+      res.send("success")
+    }catch(e: unknown){
+      next(e)
     }
   }
 }
