@@ -8,7 +8,6 @@ import { Container, Row, Col } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
 import CardWithImg from "@/components/card";
-import img from "@/assets/img/food.webp"
 
 const RecipePage = () => {
     
@@ -101,7 +100,7 @@ const RecipePage = () => {
                         <Carousel.Item key={step.id}>
                             <div className='w-100 d-flex flex-column text-center justify-content-center align-items-center'>
                             <CardWithImg 
-                            img={img} 
+                            img={step.image_link} 
                             title={`Step ${index+1}`}
                             text={step.description}
                             ></CardWithImg>

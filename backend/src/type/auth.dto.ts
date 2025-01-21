@@ -1,8 +1,8 @@
 
 export type UserDTO = {
-    id?:Number
+    id?:number
     name?: string;
     email: string;
-    password: string;
+    password?: string;
     active?: boolean;
 };

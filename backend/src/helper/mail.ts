@@ -10,7 +10,6 @@ const ClientSecret = process.env.GOOGLE_SECRET;
 const RefreshToken = process.env.GOOGLE_REFRESH_TOKEN;
 const Account = process.env.GOOGLE_MAIL_ACCOUNT;
 
-// create OAuth2 client
 export const handleSendMail = async (to: string, subject: string, content: string) => {
   return await new Promise((resolve, reject) => {
     // content required
@@ -67,7 +66,8 @@ export const handleSendMail = async (to: string, subject: string, content: strin
           resolve({ message: 'success' });
         });
       })
-      .catch(() => {
+      .catch((res) => {
+        console.log(res)
         reject(new Error('Cant get OAuth Access Token'));
       });
   });

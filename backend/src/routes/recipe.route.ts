@@ -21,7 +21,8 @@ class RecipeRoute extends Route{
         
         this.router.get('/recipe', controller.all);
         this.router.get('/recipe/:id',controller.find);
-        this.router.post('/recipe',[authorization,upload.array('file')],controller.create);
+        //dynamic file name so use any()
+        this.router.post('/recipe',[authorization,upload.any()],controller.create);
         this.router.post('/recipe_step',[authorization,upload.array('image[]')],controller.createRecipeSteps);
         this.router.put('/recipe/delete/:id',authorization,controller.delete);
         this.router.put('/recipe/:id',authorization,controller.update);

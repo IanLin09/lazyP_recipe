@@ -8,6 +8,7 @@ import { RecipeDTO } from '@/utils/dto';
 import { parseRecipe } from '@/utils/parse';
 import loadingImg from "@/assets/img/loadingcircles.gif"
 import { useHeader } from '@/components/header';
+import swAlert from '@/components/alert';
 
 type formInput = {
     category: number | null,
@@ -36,11 +37,15 @@ const RecipeList = () => {
                     tags: formData.category ? ""+formData.category :''
                 }).toString();
 
-                const response = await api.get(import.meta.env.VITE_API_URL+`/recipe?${queryParams}`);
+                const response = await api.get(import.meta.env.VITE_API_URL+`/recipe?${queryParams}`,{
+                    headers: {
+                      'Content-Type': "application/json"
+                    }
+                });
                 const data:RecipeDTO[] = await response.data.data.map(parseRecipe)
                 setRecipes(data)               
-            } catch (error) {
-                console.error('Error fetching recipes:', error);
+            } catch (e:unknown) {
+                await swAlert.confirm({ title:"Error",content: "Unknown error occur.","icon":"error" });
             } finally {
                 setLoading(false);
             }
@@ -104,8 +109,8 @@ const RecipeList = () => {
                     
                 {recipes && (
                     recipes.map((recipe,i) => (
-                        <>
-                            <div className="post-preview" key={recipe.id}>
+                        <div key={recipe.id}>
+                            <div className="post-preview" >
                                 <a href={`/recipe/${recipe.id}`}>
                                     <h2 className="post-title">{recipe.name}</h2>
                                     <h3 className="post-subtitle">{recipe.description}</h3>
@@ -124,7 +129,7 @@ const RecipeList = () => {
                             </div>
                             
                             {recipes && i < recipes?.length - 1 && <hr className="my-4" />}
-                        </>
+                        </div>
                     ))
                 )}
             </div>

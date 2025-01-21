@@ -1,17 +1,18 @@
 import { z } from "zod"
 
-enum RecipeCategoy {
+enum RecipeCategory {
     "meat" = 1,
     "vegetable" = 2,
-    "dessert" = 3
+    "main dish" = 3
 }
 
 export const recipeMaterialValidation = z.object({
+    id:z.coerce.number().optional(),
     name:z.string({
             required_error: "name is required",
             invalid_type_error: "name must be a string",
-    }),
-    number: z.number({
+    }).min(1),
+    number: z.coerce.number({
         required_error: "number is required",
         invalid_type_error: "number must be a number",
     }).positive(),
@@ -22,11 +23,13 @@ export const recipeMaterialValidation = z.object({
 })
 
 export const recipeTagValidation = z.object({
-    category: z.nativeEnum(RecipeCategoy),
+    id:z.coerce.number().optional(),
+    category: z.coerce.number(),
 })
 
 export const recipeStepValidation = z.object({
-    step: z.any({
+    id:z.coerce.number().optional(),
+    step: z.coerce.number({
         required_error: "step is required",
         invalid_type_error: "step must be a number",
     }),
@@ -40,27 +43,28 @@ export const recipeStepValidation = z.object({
 })
 
 export const recipeValidation = z.object({
+    id:z.coerce.number().optional(),
     name:z.string(
         {
             required_error: "name is required",
             invalid_type_error: "name must be a string",
         }
-    ),
+    ).min(1,"can't be empty"),
     description: z.string(
         {
-            required_error: "name is required",
-            invalid_type_error: "name must be a string",
+            required_error: "description is required",
+            invalid_type_error: "description must be a string",
         }
     ),
-    servings: z.number(
+    servings: z.coerce.number(
         {
-            required_error: "name is required",
-            invalid_type_error: "name must be a string",
+            required_error: "servings is required",
+            invalid_type_error: "servings must be a number",
         }
     ).positive(),
-    material:z.array(recipeMaterialValidation).min(1,"At least one material is required"),
+    materials:z.array(recipeMaterialValidation).min(1,"At least one material is required"),
     video_link: z.string().optional(),
-    tags:z.array(recipeTagValidation).min(1,"At least one tag is required"),
+    tags:recipeTagValidation,
     steps:z.array(recipeStepValidation).min(1,"At least one step is required"),
 });
 
@@ -77,7 +81,7 @@ export const updateRecipeValidation = z.object({
             invalid_type_error: "name must be a string",
         }
     ),
-    servings: z.number(
+    servings: z.coerce.number(
         {
             required_error: "name is required",
             invalid_type_error: "name must be a string",
@@ -88,7 +92,8 @@ export const updateRecipeValidation = z.object({
 
 export const recipeQuerySchema = z.object({
     tags: z.string().optional(),
-    keyword: z.string().optional()
+    keyword: z.string().optional(),
+    person:z.coerce.number().optional(),
     //keyword: z.string().optional().transform((materials) => materials ? materials.split(",") : undefined),
     //tags: z.string().optional().transform((tags) => tags ? tags.split(",").map(Number) : undefined),
   });

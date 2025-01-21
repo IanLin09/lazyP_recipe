@@ -1,6 +1,6 @@
 import { PrismaClient, Prisma } from '@prisma/client'
 import BaseRepository from './base.repository.ts'
-import {RecipeDTO,RecipeConditionsDTO} from "../type/recipe.dto.ts"
+import {RecipeDTO,RecipeConditionsDTO, CreateRecipeDTO} from "../type/recipe.dto.ts"
 
 
 class RecipeRepository extends BaseRepository<RecipeDTO> {
@@ -13,6 +13,13 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
       const result = await this.model.findMany({
         where: {
           AND: [
+            ...(conditions.id
+              ? [
+                  {
+                    user_id:conditions.id
+                  },
+                ]
+              : []),
             ...(conditions.keyword?.length
               ? [
                   {
@@ -42,6 +49,14 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
               : []),
           ],
         },
+        orderBy: [
+          {
+            id: 'desc',
+          },
+          {
+            name: 'desc',
+          },
+        ],
         include: {
           tags: true,
           materials: true,
@@ -51,7 +66,7 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
       return result;
     }
 
-    public create = async(data: RecipeDTO): Promise<RecipeDTO> => {
+    public create = async(data: CreateRecipeDTO): Promise<RecipeDTO> => {
         return this.model.create({
             data:{
                 name: data.name,
@@ -92,6 +107,47 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
             tags: true
           }
       });
+    }
+
+    update = async(id:number,data: RecipeDTO): Promise<RecipeDTO> =>{
+      return this.model.update({
+        where:{ 
+          id:id
+        },
+        data:{
+          name: data.name,
+          description:data.description,
+          materials: {
+            upsert: data.materials.map((material) =>({
+              where:{id:material.id || 0},
+              create: material,
+              update: material
+            }))
+          },
+          steps: {
+            upsert: data.steps.map((step) =>({
+              where:{id:step.id || 0},
+              create: step,
+              update: step
+            }))
+          },
+          tags: {
+            upsert: {
+              where:{id:data.tags.id || 0},
+              create: data.tags,
+              update: data.tags
+            }
+          },
+          user_id:data.user_id,
+          servings:data.servings,
+          video_link:data.video_link
+        },
+        include: {
+          materials: true,
+          steps: true,
+          tags: true
+        }
+      })
     }
 }
 

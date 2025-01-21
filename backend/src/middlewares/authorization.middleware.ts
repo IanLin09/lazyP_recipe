@@ -1,5 +1,5 @@
 import { RequestHandler } from "express";
-import { exists } from "../helper/redis.ts";
+import { exists,extend } from "../helper/redis.ts";
 
 export const authorization: RequestHandler = async (
     req,
@@ -19,7 +19,7 @@ export const authorization: RequestHandler = async (
            res.status(401).json({ error: 'Unauthorized - Invalid token' });
            return;
         }
-    
+        extend(token);
         next();
     } catch (error) {
         res.status(500).json({ error: 'Internal Server Error' });

@@ -11,7 +11,9 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.7.2",
+    "@googlemaps/markerclusterer": "^2.5.3",
     "@popperjs/core": "^2.11.8",
+    "@react-google-maps/api": "^2.20.5",
     "@types/js-cookie": "^3.0.6",
     "@types/node": "^22.10.5",
     "axios": "^1.7.9",
@@ -24,6 +26,7 @@
     "react-router-dom": "^6.28.1",
     "react-youtube": "^10.1.0",
     "sass": "^1.83.1",
+    "sweetalert2": "^11.15.10",
     "yup": "^1.6.1"
   },
   "devDependencies": {

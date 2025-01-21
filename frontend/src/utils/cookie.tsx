@@ -1,6 +1,6 @@
 import Cookies from 'js-cookie'
 
-const TOKEN_KEY = 'auth_token'
+const TOKEN_KEY = import.meta.env.VITE_AUTH_TOKEN
 const EXPIRE_DAYS = 1
 
 export const auth = {

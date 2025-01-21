@@ -1,50 +1,25 @@
 import '@/assets/css/blog-styles.css'
 import '@/assets/css/custom.css'
 import { useEffect,ReactNode,useState } from 'react';
-import { Outlet } from 'react-router-dom';
-import AccountModal from '@/components/modal';
+import { Outlet,useMatches } from 'react-router-dom';
+import AccountModal from '@/pages/home/account.modal';
+import { useHeader } from '@/components/header';
+import Menu from "@/pages/home/nav.menu"
 
 interface Props {
     children?: ReactNode
 }
 
-const Blog = ({children}:Props) => {
+const NoHeader = ({children}:Props) => {
+    const [modalType,setModalType] = useState("Login")
     const [accountModalShow, setAccountModalShow] = useState(false);
-    const [modalMode, setModalMode] = useState<'login' | 'register' | 'forgot-password'>('login');
+    const { headerData } = useHeader();
 
     useEffect(() => {
-        let scrollPos = 0;
-        const mainNav = document.getElementById('mainNav');
-        const headerHeight = mainNav?.clientHeight || 0;
-    
-        const handleScroll = () => {
-            const currentTop = document.body.getBoundingClientRect().top * -1;
-            
-            if (mainNav) {
-                if (currentTop < scrollPos) {
-                    // Scrolling Up
-                    if (currentTop > 0 && mainNav.classList.contains('is-fixed')) {
-                        mainNav.classList.add('is-visible');
-                    } else {
-                        mainNav.classList.remove('is-visible', 'is-fixed');
-                    }
-                } else {
-                    // Scrolling Down
-                    mainNav.classList.remove('is-visible');
-                    if (currentTop > headerHeight && !mainNav.classList.contains('is-fixed')) {
-                        mainNav.classList.add('is-fixed');
-                    }
-                }
-                scrollPos = currentTop;
-            }
-        };
-    
-        window.addEventListener('scroll', handleScroll);
-    
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
+        if (!accountModalShow) {
+          setModalType("Login"); // Reset modalType when modal is closed
+        }
+      }, [accountModalShow]);
 
     function accountModalClickHandler(){
         setAccountModalShow(true)
@@ -52,40 +27,22 @@ const Blog = ({children}:Props) => {
 
     return (
         <>
-        <nav className="navbar navbar-expand-lg navbar-light" id="mainNav">
-            <div className="container px-4 px-lg-5">
-                <a className="navbar-brand" href="/app">LazyP</a>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                    Menu
-                    <i className="fas fa-bars"></i>
-                </button>
-                <div className="collapse navbar-collapse" id="navbarResponsive">
-                    <ul className="navbar-nav ms-auto py-4 py-lg-0">
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="index.html">Home</a></li>
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="about.html">Recipe</a></li>
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="post.html">Grocery</a></li>
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">Account</a></li>
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" role="button" onClick={accountModalClickHandler}>Login</a></li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
-        <header className="masthead-full">
-            <div className="container position-relative px-4 px-lg-5">
+        <Menu showLoginModal={() => setAccountModalShow(true)}/>
+        {/* style="background-image: url('assets/img/home-bg.jpg')" */}
+        <div className="container position-relative px-4 px-lg-5">
                 <div className="row gx-4 gx-lg-5 justify-content-center">
                     <div className="col-md-10 col-lg-8 col-xl-7">
                         <div className="site-heading">
-                            <h1>LazyP</h1>
-                            <span className="subheading">For the people who think cooking spend to much time.</span>
+                            
                         </div>
                     </div>
                 </div>
             </div>
-        </header>
-        <div className="">
+        <div className="mt-5 pt-5">
             <Outlet />
             <AccountModal
-                modal={modalMode}
+                modalType={modalType}
+                setModalType={setModalType}
                 show={accountModalShow}
                 onHide={() => setAccountModalShow(false)}
             />
@@ -129,4 +86,4 @@ const Blog = ({children}:Props) => {
     )
 }
 
-export default Blog
+export default NoHeader;

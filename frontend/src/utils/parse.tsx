@@ -21,3 +21,5 @@ export const parseRecipe = (data: any): RecipeDTO => {
         updated_at: data.updated_at ? new Date(data.updated_at) : undefined,
     };
 };
+
+

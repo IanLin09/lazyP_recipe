@@ -4,9 +4,8 @@ import * as RecipeDTOs from "../type/recipe.dto"
 import RecipeService from "../services/recipe.service.ts";
 import BaseController from "./base.controller.ts";
 import {recipeValidation, updateRecipeValidation,recipeQuerySchema,recipeStepValidation} from "../helper/validation/recipe.validation.ts"
-import { UserDTO } from "@/type/auth.dto.ts";
-
-
+import { UserDTO } from "../type/auth.dto.ts";
+import logger from "../helper/log.ts";
 
 class RecipeController extends BaseController {
 
@@ -17,13 +16,20 @@ class RecipeController extends BaseController {
   }
 
   public all = async (req: Request, res: Response,next: NextFunction) =>{
-    
+
     try{
-      const { tags, keyword } = recipeQuerySchema.parse(req.query);
-      const conditions: RecipeDTOs.RecipeConditionsDTO = {
+      const { tags, keyword,person } = recipeQuerySchema.parse(req.query);
+
+      let conditions: RecipeDTOs.RecipeConditionsDTO = {
         tags:parseInt(tags),
         keyword:keyword
       }
+
+      if (person){
+        const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+        conditions.id = userData.id
+      }
+
       const data = await this.recipeService.all(conditions);
       this.success(res,data);
     }catch(e: unknown){
@@ -35,22 +41,38 @@ class RecipeController extends BaseController {
   public create = async (req: Request, res: Response,next: NextFunction) => {
     const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
     try{
+      
+      const files = req.files;
       const input = recipeValidation.parse(req.body);
-
-      const materials: RecipeDTOs.RecipeMaterialDTO[] = input.material.map(
+      
+      const materials: RecipeDTOs.CreateRecipeMaterialDTO[] = input.materials.map(
         ({ name, number, unit }) => ({ name, number, unit })
       );
       
-      const tags:RecipeDTOs.RecipeTagDTO[] = input.tags.map(
-        ({ category }) => ({ category  })
-      );
+      //Zod will change the type to nullable, so it can't use input.tag directly
+      const tags:RecipeDTOs.CreateRecipeTagDTO = {
+        category: input.tags.category
+      };
 
-      const steps:RecipeDTOs.RecipeStepDTO[] = input.steps.map(
-        ({ description,step }) => ({ description,step  })
-      );
+      const steps:RecipeDTOs.CreateRecipeStepDTO[] = input.steps.map((step,index) =>{
+        
+        if (Array.isArray(files)) {
+          const file = files.find((f) => f.fieldname === `steps[${index}][image_file]`);
+          return {
+            step:Number(step.step),
+            description:step.description,
+            image_link: file ? file.path : ""
+          }
+        }
+        
+        return {
+          step:Number(step.step),
+          description:step.description,
+        }
+    });
 
 
-      const inputData: RecipeDTOs.RecipeDTO ={
+      const inputData: RecipeDTOs.CreateRecipeDTO ={
         name: input.name,
         description:input.description,
         materials: materials,
@@ -60,9 +82,9 @@ class RecipeController extends BaseController {
         servings:input.servings,
         video_link:input.video_link
       }
-      res.send('123');
-     // const createdData = await this.recipeService.create(inputData)
-      //this.success(res,createdData);
+
+      const createdData = await this.recipeService.create(inputData)
+      this.success(res,createdData);
     }catch(e: unknown){
         next(e)
     }
@@ -80,22 +102,57 @@ class RecipeController extends BaseController {
   }
 
   public update = async (req: Request, res: Response,next: NextFunction) => {
-    try{
-      const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
-      const input = updateRecipeValidation.parse(req.body);
+    
+    const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+      try{
+        
+        const files = req.files;
+        const input = recipeValidation.parse(req.body);
+        
+        const materials: RecipeDTOs.RecipeMaterialDTO[] = input.materials.map(
+          ({ id,name, number, unit }) => ({ id,name, number, unit })
+        );
+        
+        //Zod will change the type to nullable, so it can't use input.tag directly
+        const tags:RecipeDTOs.RecipeTagDTO = {
+          id:input.tags.id,
+          category: input.tags.category
+        };
+
+        const steps:RecipeDTOs.RecipeStepDTO[] = input.steps.map((step,index) =>{
+          
+          if (Array.isArray(files)) {
+            const file = files.find((f) => f.fieldname === `steps[${index}][image_file]`);
+            return {
+              id:step.id,
+              step:Number(step.step),
+              description:step.description,
+              image_link: file ? file.path : ""
+            }
+          }
+          
+          return {
+            id:step.id,
+            step:Number(step.step),
+            description:step.description,
+          }
+      });
 
       const inputData: RecipeDTOs.RecipeDTO ={
+        id:input.id,
         name: input.name,
         description:input.description,
+        materials: materials,
+        steps:steps,
+        tags:tags,
         user_id:userData.id,
         servings:input.servings,
         video_link:input.video_link
       }
-      const id = req.params.id;
-      const data: RecipeDTOs.RecipeDTO = await this.recipeService.updateRecipe(parseInt(id),inputData)
-      this.success(res,data);
+      await this.recipeService.updateRecipe(input.id,inputData)
+      this.success(res);
     }catch(e: unknown){
-      next(e);
+        next(e)
     }
   }
 

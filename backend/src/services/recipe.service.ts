@@ -1,4 +1,4 @@
-import {RecipeDTO,RecipeConditionsDTO} from "../type/recipe.dto"
+import {RecipeDTO,RecipeConditionsDTO, CreateRecipeDTO} from "../type/recipe.dto"
 import RecipeRepository from '../repositories/recipe.repository';
 
 
@@ -15,7 +15,7 @@ class RecipeService{
         return data
     }
 
-    public create = async(data: RecipeDTO) => {
+    public create = async(data: CreateRecipeDTO) => {
        
         const createdData = await this.RecipeRepository.create(data)
         return createdData;

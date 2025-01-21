@@ -5,6 +5,9 @@ import Button from 'react-bootstrap/Button';
 import { Alert } from 'react-bootstrap';
 import { ErrorResponse,parseErrors } from '@/utils/error';
 import { auth } from '@/utils/cookie'
+import { UserDTO } from '@/utils/dto';
+import swAlert from "@/components/alert"
+
 
 
 type loginInput = {
@@ -13,11 +16,11 @@ type loginInput = {
 }
 
 interface Props{
-  onHide:(() => void)
-}
+  onHide:(() => void),}
 
 
 const LoginForm = (props:Props) => {
+
     const [error, setError] = useState<Partial<loginInput>>({
       email: '',
       password: ''
@@ -51,14 +54,20 @@ const LoginForm = (props:Props) => {
             'Content-Type': 'application/json'
           }
         });
-
-        auth.setToken(response.data?.data.token)
-        props.onHide()
-        setAlert(null)
-        setFormData({ email: '', password: ''});
-        setError({ email: '', password: ''});
-        window.location.reload();
+        const userData:UserDTO = {...response.data?.data}
+        if (userData.token){
+          auth.setToken(userData.token)
+        }
         
+        if (response.data?.status == 200){
+          props.onHide()
+          setAlert(null)
+          setFormData({ email: '', password: ''});
+          setError({ email: '', password: ''});
+          await swAlert.confirm({title:"Success",content:"Login success"});
+          window.location.reload();
+        }
+       
       } catch (err) {
         if (err instanceof AxiosError){
           let errorMsg :ErrorResponse = err.response?.data
@@ -77,7 +86,7 @@ const LoginForm = (props:Props) => {
         <>
             <Form onSubmit={handleSubmit}>
             {alert && <Alert variant="danger">{alert}</Alert>}
-                <Form.Group className="mb-3" controlId="formBasicEmail">
+                <Form.Group className="mb-3">
                     <Form.Label>Email address</Form.Label>
                     <Form.Control 
                     isInvalid={!!error.email} 
@@ -92,7 +101,7 @@ const LoginForm = (props:Props) => {
                     </Form.Control.Feedback>
                 </Form.Group>
 
-                <Form.Group className="mb-3" controlId="formBasicPassword">
+                <Form.Group className="mb-3">
                     <Form.Label>Password</Form.Label>
                     <Form.Control 
                     onChange={handleChange} 
@@ -105,9 +114,6 @@ const LoginForm = (props:Props) => {
                     <Form.Control.Feedback type="invalid">
                       {error.password}
                     </Form.Control.Feedback>
-                </Form.Group>
-
-                <Form.Group className="mb-3">
                 </Form.Group>
 
                 <div className='float-end'>

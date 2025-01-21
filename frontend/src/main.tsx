@@ -6,13 +6,16 @@ import Router from '@/router.tsx'
 import {BrowserRouter} from 'react-router-dom'
 import Page from '@/pages/app.tsx'
 import { HeaderProvider } from '@/components/header'
+import { LoginProvider } from '@/components/login'
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
     <HeaderProvider>
-    <BrowserRouter>
-      <Router></Router>
-    </BrowserRouter>
+      <LoginProvider>
+        <BrowserRouter>
+          <Router></Router>
+        </BrowserRouter>
+    </LoginProvider>
     </HeaderProvider>
   </StrictMode>,
 )

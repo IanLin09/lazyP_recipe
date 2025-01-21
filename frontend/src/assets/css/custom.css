@@ -149,3 +149,9 @@
     color: red;
     margin-right: 4px;
 }
+
+.mock-click {
+    cursor: pointer;
+    color:#0645AD;
+    text-decoration: dashed;
+}

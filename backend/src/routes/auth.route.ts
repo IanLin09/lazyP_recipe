@@ -16,11 +16,15 @@ class AuthRoute extends Route{
         let repo: AuthRepository = new AuthRepository(client);
         let service: AuthService = new AuthService(repo)
         let controller: AuthController = new AuthController(service)
-        
+    
         
         this.router.post('/login',controller.login);
         this.router.post('/email-authorization',controller.emailAuthorization);
         this.router.post('/register',controller.create);
+        this.router.post('/forgot',controller.forgot);
+        this.router.put('/account', authorization,controller.updateUserInfo);
+        this.router.patch('/password',authorization,controller.updatePassword);
+        this.router.get('/account',authorization,controller.userInfo);
     }
 
 }

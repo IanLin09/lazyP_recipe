@@ -16,7 +16,7 @@ type StepGroupProps = {
 const StepGroup:React.FC<StepGroupProps> = ({steps,setSteps,setFieldValue,errors}) => {
 
     //focusing on step index and value
-    const handleChange = (index: number, field: keyof RecipeStepDTO, value: string | number) => {
+    const handleChange = (index: number, field: keyof RecipeStepDTO, value: string | number | undefined| File) => {
         const updatedStep = [...steps];
         updatedStep[index] = {
             ...updatedStep[index],
@@ -27,7 +27,7 @@ const StepGroup:React.FC<StepGroupProps> = ({steps,setSteps,setFieldValue,errors
     };
     
     const addStep = () => {
-        const newStep: RecipeStepDTO = { description: '', step: 0};
+        const newStep: RecipeStepDTO = { description: '', step: steps.length + 1};
         setSteps([...steps, newStep]);
     };
 
@@ -60,8 +60,7 @@ const StepGroup:React.FC<StepGroupProps> = ({steps,setSteps,setFieldValue,errors
                     <Form.Label>Image</Form.Label>
                     <Form.Control
                         type="file"
-                        onChange={(e) => handleChange(index,"image_file",e.target.value)}
-                        value={step.image_file}
+                        onChange={(e) => handleChange(index,"image_file",(e.target as HTMLInputElement).files?.[0])}
                         name={`steps[${index}].image_file`}
                     />
                     <Form.Control.Feedback>Looks good!</Form.Control.Feedback>

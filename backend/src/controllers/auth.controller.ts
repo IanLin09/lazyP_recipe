@@ -4,19 +4,11 @@ import {UserDTO} from "../type/auth.dto"
 import AuthService from "../services/auth.service";
 import BaseController from "./base.controller.ts";
 import crypto from "crypto"
-import { storeData,getData } from "../helper/redis.ts"
+import { storeData,forgetData } from "../helper/redis.ts"
 import { handleSendMail } from "../helper/mail.ts";
+import {UserDataValidation,UserEmailNameValidation,UpdatePasswordValidation} from "../helper/validation/auth.validation.ts"
 
-const UserDataValidation = z.object({
-  name: z.string().optional(),
-  email: z.string({
-    required_error: "Email is required",
-    invalid_type_error: "Email must be a string",
-  }).email("This is not a valid email.").nullish().pipe(z.string()),
-  password: z.string({
-    required_error: "Password is required"
-  }).min(8,{message:"password required at least 8 characters long"}).nullish().pipe(z.string()),
-});
+
 
 class AuthController extends BaseController {
 
@@ -24,11 +16,6 @@ class AuthController extends BaseController {
   constructor(service: AuthService) {
     super()
     this.authService = service;
-  }
-
-  public async test(req: Request, res: Response,next: NextFunction) {
-    const data = await getData("440c5686d2bf8f92aefb7b6def747f23c23aeff51a47f173632198e42bc75309");
-    res.send(data);
   }
 
   emailAuthorization = async (req: Request, res: Response,next: NextFunction) => {
@@ -48,7 +35,7 @@ class AuthController extends BaseController {
       inputData = await userData
       const token = crypto.randomBytes(32).toString('hex');
       storeData(token,inputData,3600);
-      this.success(res,{token: token})
+      this.success(res,{...inputData,token: token})
       
     }catch(e: unknown){
       next(e)
@@ -60,12 +47,76 @@ class AuthController extends BaseController {
     try{
       const input = UserDataValidation.parse(req.body);
       const inputData: UserDTO = {
-        name: input.name,
         email: input.email,
         password: input.password,
       }
       const createdData = await this.authService.create(inputData)
-      this.success(res,createdData);
+      this.success(res);
+    }catch(e: unknown){
+      next(e)
+    }
+  }
+
+  forgot = async (req: Request, res: Response,next: NextFunction) => {
+    try{
+      const input = UserEmailNameValidation.parse(req.body);
+      const inputData: UserDTO = {
+        email: input.email
+      }
+      const result = await this.authService.forgotPassword(inputData)
+      
+      this.success(res,result);
+    }catch(e: unknown){
+      next(e)
+    }
+  }
+
+  logout = async (req: Request, res: Response,next: NextFunction) => {
+    try{
+      forgetData(req.headers.authorization?.split(' ')[1]);
+      this.success(res);
+    }catch(e: unknown){
+      next(e)
+    }
+  }
+
+  userInfo = async (req: Request, res: Response,next: NextFunction) => {
+    try{
+      const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1]);
+      this.success(res,userData);
+    }catch(e: unknown){
+      next(e)
+    }
+  }
+
+  updateUserInfo = async (req: Request, res: Response,next: NextFunction) => {
+    const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+    try{
+      const input = UserEmailNameValidation.parse(req.body);
+      const inputData: UserDTO = {
+        id:userData.id,
+        email: input.email,
+        name:input.name
+      }
+      const result = await this.authService.update(inputData)
+      
+      this.success(res,result);
+    }catch(e: unknown){
+      next(e)
+    }
+  }
+
+  updatePassword = async (req: Request, res: Response,next: NextFunction) => {
+    const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+    try{
+      const input = UpdatePasswordValidation.parse(req.body);
+      const inputData: UserDTO = {
+        id:userData.id,
+        email:userData.email,
+        password:input.newPassword
+      }
+      await this.authService.forgotPassword(inputData)
+      this.success(res);
     }catch(e: unknown){
       next(e)
     }

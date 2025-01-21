@@ -1,3 +1,18 @@
+
+export type UserDTO = {
+    id?:number
+    name?: string;
+    email: string;
+    active?: boolean;
+    token?:string
+};
+
+export type UserPasswordDTO = {
+    oldPassword: string;
+    newPassword: string;
+    newPasswordConfirm: string;
+};
+
 export type RecipeDTO = {
     id?: number,
     name: string,  
@@ -26,7 +41,7 @@ export type RecipeTagDTO = {
 
 export type RecipeStepDTO = {
     id?: number,
-    image?: string,
+    image_link?: string,
     image_file?: any,
     step:number,
     description:string,
@@ -38,14 +53,14 @@ export type RouteHandle = {
 }
 
 export const CreateEmptyRecipe = ():RecipeDTO => {
-    const tags: RecipeTagDTO = {category:0}
+    const tags: RecipeTagDTO = {category:3}
 
     const step: RecipeStepDTO[] = [
-        {step:0,description:""}
+        {step:1,description:""}
     ]
 
     const material: RecipeMaterialDTO[] = [
-        {name:'',number:0,unit:''}
+        {name:'',number:1,unit:''}
     ]
 
     return {
@@ -59,3 +74,10 @@ export const CreateEmptyRecipe = ():RecipeDTO => {
         materials:material
     }
 }
+
+export type MarkerItem = {
+    id?: string;
+    position?: google.maps.LatLng | google.maps.LatLngLiteral;
+    title?: string;
+  };
+  

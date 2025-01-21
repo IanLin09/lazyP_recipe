@@ -28,7 +28,7 @@ app.use(express.urlencoded({ extended: true }));
 const router = new Router(prisma);
 let routers = router.AllRoutes()
 for (const route of routers) {
-  app.use(route.getRouter());
+  app.use('/api',route.getRouter());
 }
 app.use(errorHandler);
 

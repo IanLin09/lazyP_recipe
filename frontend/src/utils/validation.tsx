@@ -23,3 +23,16 @@ export const RecipeSchema = Yup.object().shape({
       })
     ),
 });
+
+export const emailSchema = Yup.object().shape({
+  email: Yup.string().min(1,"email is required").matches(/^[A-Z0-9._%+-]+@[A-Z0-9.-]+.[A-Z]{2,}$/i, 'Invalid email format'),
+  name: Yup.string().optional()
+});
+
+export const passwordSchema = Yup.object({
+  oldPassword: Yup.string().min(8).required('Old password is required'),
+  newPassword: Yup.string().min(8).required('New password is required'),
+  newPasswordConfirm: Yup.string()
+    .oneOf([Yup.ref('newPassword')], 'Passwords must match')
+    .required('Confirm password is required')
+});

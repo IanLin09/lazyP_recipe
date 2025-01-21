@@ -2,53 +2,24 @@ import '@/assets/css/blog-styles.css'
 import '@/assets/css/custom.css'
 import { useEffect,ReactNode,useState } from 'react';
 import { Outlet,useMatches } from 'react-router-dom';
-import AccountModal from '@/components/modal';
-import { auth } from "@/utils/cookie"
-import  { RouteHandle } from '@/utils/dto';
+import AccountModal from '@/pages/home/account.modal';
 import { useHeader } from '@/components/header';
+import Menu from "@/pages/home/nav.menu"
 
 interface Props {
     children?: ReactNode
 }
 
 const Blog = ({children}:Props) => {
+    const [modalType,setModalType] = useState("Login")
     const [accountModalShow, setAccountModalShow] = useState(false);
-    const [modalMode, setModalMode] = useState<'login' | 'register' | 'forgot-password'>('login');
     const { headerData } = useHeader();
 
     useEffect(() => {
-        let scrollPos = 0;
-        const mainNav = document.getElementById('mainNav');
-        const headerHeight = mainNav?.clientHeight || 0;
-    
-        const handleScroll = () => {
-            const currentTop = document.body.getBoundingClientRect().top * -1;
-            
-            if (mainNav) {
-                if (currentTop < scrollPos) {
-                    // Scrolling Up
-                    if (currentTop > 0 && mainNav.classList.contains('is-fixed')) {
-                        mainNav.classList.add('is-visible');
-                    } else {
-                        mainNav.classList.remove('is-visible', 'is-fixed');
-                    }
-                } else {
-                    // Scrolling Down
-                    mainNav.classList.remove('is-visible');
-                    if (currentTop > headerHeight && !mainNav.classList.contains('is-fixed')) {
-                        mainNav.classList.add('is-fixed');
-                    }
-                }
-                scrollPos = currentTop;
-            }
-        };
-    
-        window.addEventListener('scroll', handleScroll);
-    
-        return () => {
-            window.removeEventListener('scroll', handleScroll);
-        };
-    }, []);
+        if (!accountModalShow) {
+          setModalType("Login"); // Reset modalType when modal is closed
+        }
+      }, [accountModalShow]);
 
     function accountModalClickHandler(){
         setAccountModalShow(true)
@@ -56,25 +27,7 @@ const Blog = ({children}:Props) => {
 
     return (
         <>
-        <nav className="navbar navbar-expand-lg navbar-light" id="mainNav">
-            <div className="container px-4 px-lg-5">
-                <a className="navbar-brand" href="/app">LazyP</a>
-                <button className="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
-                    Menu
-                    <i className="fas fa-bars"></i>
-                </button>
-                <div className="collapse navbar-collapse" id="navbarResponsive">
-                    <ul className="navbar-nav ms-auto py-4 py-lg-0">
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="index.html">Home</a></li>
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="/recipe/list">Recipe</a></li>
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="post.html">Grocery</a></li>
-                        {auth.isAuthenticated() &&<li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" href="contact.html">Account</a></li>}
-                        <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" role="button" onClick={accountModalClickHandler}>Login</a></li>
-                        {!auth.isAuthenticated() && <li className="nav-item"><a className="nav-link px-lg-3 py-3 py-lg-4" role="button" onClick={accountModalClickHandler}>Login</a></li>}
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <Menu showLoginModal={() => setAccountModalShow(true)}/>
         {/* style="background-image: url('assets/img/home-bg.jpg')" */}
         <header className="masthead">
             <div className="container position-relative px-4 px-lg-5">
@@ -91,7 +44,8 @@ const Blog = ({children}:Props) => {
         <div className="">
             <Outlet />
             <AccountModal
-                modal={modalMode}
+                modalType={modalType}
+                setModalType={setModalType}
                 show={accountModalShow}
                 onHide={() => setAccountModalShow(false)}
             />
