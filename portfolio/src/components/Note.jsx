@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import Modal from './Modal.jsx';
 import Card from './Card.jsx';
 

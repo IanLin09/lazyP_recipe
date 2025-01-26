@@ -48,8 +48,7 @@ const LoginForm = (props:Props) => {
         password: ""
       });
       try {
-        console.log(import.meta.env.VITE_API_URL+'/login')
-        const response = await axios.post("http://localhost:3000/api/login", formData, {
+        const response = await axios.post(import.meta.env.VITE_API_URL+'/login', formData, {
           headers: {
             'Content-Type': 'application/json'
           },

@@ -87,7 +87,7 @@ const StoreMap = () => {
 
   useEffect(() => {
     fetchUserLocation();
-    setHeader("Store","Store location and infromation")
+    setHeader("Store","Store location and information")
   }, []);
 
   if (!isLoaded) {

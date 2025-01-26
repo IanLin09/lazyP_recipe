@@ -9,6 +9,8 @@ import MyRecipeList from '@/pages/recipes/recipe.table';
 import Store from "@/pages/store/store"
 import AccountInfo from "@/pages/acccount/account"
 import PasswordInfo from '@/pages/acccount/password';
+import NotFoundPage from '@/pages/exist';
+import Authorization from '@/components/authorization';
 
 const Router = () => (
   <Routes>
@@ -16,14 +18,16 @@ const Router = () => (
       <Route index element={<Navigate to="/home" replace />} />
       <Route path="/home" element={<Home />} />
       <Route path="/recipe/collection" element={<RecipeList />} />
-      <Route path="/recipe/list" element={<MyRecipeList />} />
-      <Route path="/recipe/create" element={<CreateRecipe />}/>
-      <Route path="/recipe/edit/:id" element={<EditRecipe />}/>
+      <Route path="/recipe/list" element={<Authorization><MyRecipeList /></Authorization>} />
+      <Route path="/recipe/create" element={<Authorization><CreateRecipe /></Authorization>}/>
+      <Route path="/recipe/edit/:id" element={<Authorization><EditRecipe /></Authorization>}/>
       <Route path="/recipe/:id" element={<Recipe />} />
       <Route path="/store" element={<Store />} />
-      <Route path="/account" element={<AccountInfo />}/>
-      <Route path="/password" element={<PasswordInfo />}/>
+      <Route path="/account" element={<Authorization><AccountInfo /></Authorization>}/>
+      <Route path="/password" element={<Authorization><PasswordInfo /></Authorization>}/>
     </Route>
+    <Route path="/404" element={<NotFoundPage />} />
+    <Route path="*" element={<Navigate to="/404" replace />} />
   </Routes>
 );
 

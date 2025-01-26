@@ -25,18 +25,32 @@ interface Props {
 const Menu = ({showLoginModal}:Props) => {
 
   const expandMenu = false;
-
-  const menuItems = [
-    { title: 'Home', link: '/home' },
-    {
-      title: 'Recipes',
-      items: [
-        { title: 'Recipe List', link: '/recipe/collection' },
-        { title: 'Create Recipe', link: '/recipe/create' },
-      ],
-    },
-    { title: 'Store', link: '/store' },
-  ];
+  let menuItems:MenuItem[]
+  if (auth.isAuthenticated()){
+    menuItems = [
+      { title: 'Home', link: '/home' },
+      {
+        title: 'Recipes',
+        items: [
+          { title: 'Recipe List', link: '/recipe/collection' },
+          { title: 'Create Recipe', link: '/recipe/create' },
+        ],
+      },
+      { title: 'Store', link: '/store' },
+    ];
+  }else{
+    menuItems = [
+      { title: 'Home', link: '/home' },
+      {
+        title: 'Recipes',
+        items: [
+          { title: 'Recipe List', link: '/recipe/collection' },
+        ],
+      },
+      { title: 'Store', link: '/store' },
+    ];
+  }
+  
   
   const [expanded, setExpanded] = useState<ExpandedState>({});
   const [loginText, setLoginText] = useState<JSX.Element>(
@@ -85,8 +99,6 @@ const Menu = ({showLoginModal}:Props) => {
         </Nav.Link>
       );
     }
-
-    
   },[])
 
   return (

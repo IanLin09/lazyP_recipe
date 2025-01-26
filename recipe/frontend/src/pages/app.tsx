@@ -9,16 +9,20 @@ const App = () => {
     
       <div className="index-container-flex">
         <div className="index-item">
+          <a href="/recipe/collection">
           <img className="index-image" src={recipeIMG} />
           <div className="image-overlay">
             <h2 className="overlay-text">Recipe Collection</h2>
           </div>
+          </a>
         </div>
         <div className="index-item">
-          <img className="index-image" src={GroceryIMG} />
-          <div className="image-overlay">
-            <h2 className="overlay-text">Grocery Location</h2>
-          </div>
+          <a href="/store">
+            <img className="index-image" src={GroceryIMG} />
+            <div className="image-overlay">
+              <h2 className="overlay-text">Grocery Location</h2>
+            </div>
+          </a>
         </div>
       </div>
   )

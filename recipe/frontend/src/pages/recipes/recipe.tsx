@@ -8,15 +8,17 @@ import { Container, Row, Col } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
 import CardWithImg from "@/components/card";
+import { useHeader } from '@/components/header';
 
 const RecipePage = () => {
     
+    const { setHeader } = useHeader();
     const { id } = useParams<{ id: string }>();
     const [recipe,setRecipe] = useState<RecipeDTO>()
     const [loading, setLoading] = useState(false);
     const [materialChunk,setMaterialChunk] = useState<RecipeMaterialDTO[][]>([])
 
-    if (!loading) return null;
+    
     useEffect(()=>{
         const fetchRecipe = async () => {
             setLoading(true);
@@ -42,14 +44,16 @@ const RecipePage = () => {
         };
 
         fetchRecipe();
+        setHeader("Recipes", "Here's the magic happen");
         return () => {
-       
+            setHeader("LazyP", "For the people who think cooking spend to much time.");
         };
     },[]);
 
 
     return (
         <Container>
+            {loading && <p>Loading...</p>}
             <Row className="justify-content-center">
                 {recipe?.video_link && (
                     <Col xs={12} md={8} className="mb-4">

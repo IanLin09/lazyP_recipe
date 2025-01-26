@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React from 'react';
 import Footer from "./FooterBar.jsx";
-import Terminal from "../components/Terminal.jsx";
-import Picture from '../components/Picture.jsx';
-import Calendar from "../components/Calendar.jsx";
-import Note from "../components/Note.jsx";
-import Contact from '../components/Contact.jsx';
+import Terminal from "./Terminal.jsx";
+import Picture from './Picture.jsx';
+import Calendar from "./Calendar.jsx";
+import Note from "./Note.jsx";
+import Contact from './Contact.jsx';
 
 const Page = () => {
 

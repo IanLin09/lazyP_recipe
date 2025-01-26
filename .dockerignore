@@ -1,7 +1,20 @@
-node_modules
-npm-debug.log
+# Logs
+npm-debug.log*
+
+# Build output (exclude only if you don’t need to copy prebuilt files)
+dist
 build
+
+# Node modules (should be installed fresh in the container)
+node_modules
+
+# Git and related files
 .git
-.env
-*.md
 .gitignore
+
+# Documentation and other non-critical files
+*.md
+*.log
+
+# Exclude local environment files
+.env.local

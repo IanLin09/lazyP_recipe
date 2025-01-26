@@ -1,5 +1,5 @@
 // ImageWithModal.jsx
-import React, { useState } from "react";
+import React from "react";
 import { TypeAnimation } from 'react-type-animation';
 import Modal from './Modal.jsx'
 

@@ -23,6 +23,8 @@ model User {
   active Boolean @default(true)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+
+  @@index([email])
 }
 
 model Recipe {
@@ -39,6 +41,8 @@ model Recipe {
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
   deleted_at DateTime?
+
+  @@index([name])
 }
 
 model Recipe_material {
@@ -50,15 +54,19 @@ model Recipe_material {
   recipe      Recipe  @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+
+  @@index([recipe_id,name])
 }
 
 model Recipe_tags {
   id    Int     @id @default(autoincrement())
   category Int
-  recipe_id Int
+  recipe_id Int 
   recipe      Recipe  @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+
+  @@index([recipe_id,category])
 }
 
 model Recipe_steps {
@@ -70,6 +78,8 @@ model Recipe_steps {
   recipe     Recipe  @relation(fields: [recipe_id], references: [id], onDelete: Cascade)
   created_at DateTime @default(now())
   updated_at DateTime @default(now())
+
+  @@index([recipe_id])
 }
 
 model Store_comments {
