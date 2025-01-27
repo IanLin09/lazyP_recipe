@@ -22,16 +22,13 @@ const corsOptions = {
 };
 
 const app = express();
-const port = 3000;
+const port = parseInt(process.env.SITE_PORT);
 // const prisma = new PrismaClient({
 //   log: ['query', 'info', 'warn', 'error'], // Enable logging
 // });
 const prisma = new PrismaClient();
 
 app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-
-
-
 app.use(cors(corsOptions));
 
 app.use(express.json());
