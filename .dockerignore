@@ -2,7 +2,6 @@
 npm-debug.log*
 
 # Build output (exclude only if you don’t need to copy prebuilt files)
-dist
 build
 
 # Node modules (should be installed fresh in the container)
