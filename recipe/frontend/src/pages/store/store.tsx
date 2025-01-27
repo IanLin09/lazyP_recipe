@@ -4,6 +4,7 @@ import StoreMarker from "@/pages/store/storeMarker";
 import { MarkerItem } from "@/utils/dto";
 import { useHeader } from "@/components/header";
 import swAlert from "@/components/alert";
+import loadingImg from "@/assets/img/loadingcircles.gif"
 
 const libraries:Libraries = ['places',"marker"]
 type LatLng = { lat: number; lng: number };
@@ -14,7 +15,7 @@ const StoreMap = () => {
   const {setHeader} = useHeader()
   const mapRef = useRef<google.maps.Map | null>(null);
   const [markers, setMarkers] = useState<MarkerItem[]>([]);
-  const [center, setCenter] = useState<LatLng>({ lat: 25.0197472, lng: 121.4570441 }); // Default center
+  const [center, setCenter] = useState<LatLng>(); // Default center
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: key,
     libraries:libraries
@@ -69,8 +70,10 @@ const StoreMap = () => {
 
   // Initialize the map and search for nearby places
   const handleMapLoad = (map: google.maps.Map) => {
-    mapRef.current = map;
-    searchNearbyPlaces(map,center);
+    if (center){
+      mapRef.current = map;
+      searchNearbyPlaces(map,center);
+    }
   };
 
   const handleMapClick = (event: google.maps.MapMouseEvent) => {
@@ -95,19 +98,28 @@ const StoreMap = () => {
   }
 
   return (
-    <GoogleMap
-      center={center}
-      zoom={15}
-      mapContainerStyle={{ height: "400px", width: "100%" }}
-      onLoad={handleMapLoad}
-      onClick={handleMapClick}
-    >
-    {center && (
+    <>
+    {!isLoaded  ? (
+      <div className='text-center'>
+        <img className='image-origin' src={loadingImg}></img>
+      </div>
+    ) : !center ? (
+      <div className='text-center'>
+        <img className='image-origin' src={loadingImg}></img>
+      </div>
+    ) : (
+      <GoogleMap
+        center={center}
+        zoom={15}
+        mapContainerStyle={{ height: "400px", width: "100%" }}
+        onLoad={handleMapLoad}
+        onClick={handleMapClick}
+      >
         <MarkerF position={center} title="You are here" />
+        <StoreMarker markers={markers} map={mapRef.current} />
+      </GoogleMap>
     )}
-    <StoreMarker markers={markers} map={mapRef.current}/>
-
-    </GoogleMap>
+  </>
   );
 };
 

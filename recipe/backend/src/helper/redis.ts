@@ -9,7 +9,7 @@ function connectToRedis(): Redis {
       //   port: parseInt(process.env.REDIS_PORT),
       //   password: process.env.REDIS_PASSWORD,
       // });
-      redisClient = new Redis('redis://default:wDPmmrZZhwApuAByqmRDamUwlortfLxq@viaduct.proxy.rlwy.net:44010')
+      redisClient = new Redis(process.env.RAILWAY_REDIS_HOST);
       console.log("Connected to Redis!");
     }
     return redisClient;

@@ -4,8 +4,14 @@ import { PrismaClient } from '@prisma/client';
 import dotenv from 'dotenv';
 import Router from './router.js';
 import cors from "cors";
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+
 
 dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const frontend = process.env.FRONTEND_WEB
 const corsOptions = {
@@ -22,9 +28,8 @@ const port = 3000;
 // });
 const prisma = new PrismaClient();
 
-app.get('/', (req, res) => {
-  res.send('Backend is running');
-});
+app.use(express.static(path.join(__dirname, '../../frontend/dist')));
+
 
 
 app.use(cors(corsOptions));
@@ -38,6 +43,11 @@ let routers = router.AllRoutes()
 for (const route of routers) {
   app.use('/api',route.getRouter());
 }
+
+// Handle client-side routing - serve index.html for all routes
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
+});
 
 app.use(errorHandler);
 

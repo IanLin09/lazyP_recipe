@@ -4,7 +4,14 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image" href="/LP.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta http-equiv="Content-Security-Policy" content="default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;">
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src * 'unsafe-inline' 'unsafe-eval' data: blob:;
+    
+    ">
+    <!-- script-src 'self' 'unsafe-inline' http://www.youtube.com/iframe_api  https://www.youtube.com https://cdn.jsdelivr.net https://use.fontawesome.com;
+    connect-src 'self' https://www.youtube.com https://play.google.com http://localhost:3000;
+    frame-src https://www.youtube.com;
+    img-src 'self' https: data:; -->
     <!-- Font Awesome icons (free version)-->
     <script src="https://use.fontawesome.com/releases/v6.3.0/js/all.js" crossorigin="anonymous"></script>
   

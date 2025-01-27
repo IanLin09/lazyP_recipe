@@ -9,6 +9,7 @@ import Card from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
 import CardWithImg from "@/components/card";
 import { useHeader } from '@/components/header';
+import loadingImg from "@/assets/img/loadingcircles.gif"
 
 const RecipePage = () => {
     
@@ -52,8 +53,10 @@ const RecipePage = () => {
 
 
     return (
-        <Container>
-            {loading && <p>Loading...</p>}
+        <>
+        {!loading && (
+            <Container>
+            
             <Row className="justify-content-center">
                 {recipe?.video_link && (
                     <Col xs={12} md={8} className="mb-4">
@@ -114,7 +117,14 @@ const RecipePage = () => {
                     }
                 </Carousel>
             </Row>
+            
         </Container>
+        )}
+        
+        {loading && <div className='text-center'>
+                <img className='image-origin' src={loadingImg}></img>
+        </div>}
+    </>
     );
 }
 
