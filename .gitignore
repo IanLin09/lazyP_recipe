@@ -5,7 +5,6 @@ dist/
 build/
 .vscode/
 docker-compose.yml
-Dockerfile
 redis-commander-config.json
 *.log
 logs/
