@@ -1,17 +1,17 @@
 FROM node:18 AS backend
 
 WORKDIR /usr/src/app/backend
-COPY backend/package*.json backend/tsconfig.json ./
+COPY recipe/backend/package*.json recipe/backend/tsconfig.json ./
 RUN npm install
-COPY backend ./
+COPY recipe/backend ./
 
 # Frontend build stage
 FROM node:18 AS frontend
 
 WORKDIR /usr/src/app/frontend
-COPY frontend/package*.json ./
+COPY recipe/frontend/package*.json ./
 RUN npm install
-COPY frontend ./
+COPY recipe/frontend ./
 RUN npm run build
 
 
