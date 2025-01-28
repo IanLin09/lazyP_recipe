@@ -28,7 +28,7 @@ COPY --from=frontend /usr/src/app/frontend ./frontend
 RUN npm install -g typescript ts-node nodemon
 
 WORKDIR /usr/src/app/backend/src/prisma
-RUN prisma generate
+RUN npx prisma generate
 
 WORKDIR /usr/src/app/backend
 
