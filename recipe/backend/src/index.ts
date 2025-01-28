@@ -22,7 +22,7 @@ const corsOptions = {
 };
 
 const app = express();
-const port = parseInt(process.env.SITE_PORT);
+const port = parseInt(process.env.PORT);
 // const prisma = new PrismaClient({
 //   log: ['query', 'info', 'warn', 'error'], // Enable logging
 // });
