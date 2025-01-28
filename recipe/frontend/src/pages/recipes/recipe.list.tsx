@@ -29,7 +29,6 @@ const RecipeList = () => {
     useEffect(()=>{
         const fetchRecipes = async () => {
             setLoading(true);
-            console.log("URL"+import.meta.env.VITE_API_URL)
             try {
                 const queryParams = new URLSearchParams({
                     keyword: formData.keyword,
@@ -45,7 +44,6 @@ const RecipeList = () => {
                 const data:RecipeDTO[] = await response.data.data.map(parseRecipe)
                 setRecipes(data)               
             } catch (e:unknown) {
-                console.log(e)
                 await swAlert.confirm({ title:"Error",content: "Unknown error occur.","icon":"error" });
             } finally {
                 setLoading(false);

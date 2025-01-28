@@ -12,6 +12,17 @@ WORKDIR /usr/src/app/frontend
 COPY recipe/frontend/package*.json ./
 RUN npm install
 COPY recipe/frontend ./
+
+# Make sure these ARGs are defined before the build
+ARG VITE_API_URL
+ARG VITE_AUTH_TOKEN
+ARG VITE_GOOGLEMAP_API_KEY
+
+# Set them as ENV variables during build
+ENV VITE_API_URL=${VITE_API_URL}
+ENV VITE_AUTH_TOKEN=${VITE_AUTH_TOKEN}
+ENV VITE_GOOGLEMAP_API_KEY=${VITE_GOOGLEMAP_API_KEY}
+
 RUN npm run build
 
 

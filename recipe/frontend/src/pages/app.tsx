@@ -5,6 +5,12 @@ import GroceryIMG from "@/assets/img/grocery.webp"
 
 const App = () => {
 
+  console.log('Environment Variables:', {
+    apiUrl: import.meta.env.VITE_API_URL,
+    authToken: import.meta.env.VITE_AUTH_TOKEN,
+    mapKey: import.meta.env.VITE_GOOGLEMAP_API_KEY
+  });
+
   return (
     
       <div className="index-container-flex">
