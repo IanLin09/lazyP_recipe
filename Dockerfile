@@ -27,6 +27,9 @@ COPY --from=frontend /usr/src/app/frontend ./frontend
 # Install ts-node globally in the final stage
 RUN npm install -g typescript ts-node nodemon
 
+WORKDIR /usr/src/app/backend/src/prisma
+RUN prisma generate
+
 WORKDIR /usr/src/app/backend
 
 EXPOSE 3000
