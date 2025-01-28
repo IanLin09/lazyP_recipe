@@ -35,17 +35,17 @@ const RecipeList = () => {
                     keyword: formData.keyword,
                     tags: formData.category ? ""+formData.category :''
                 }).toString();
-
+                console.log(import.meta.env.VITE_API_URL)
                 const response = await api.get(import.meta.env.VITE_API_URL+`/recipe?${queryParams}`,{
                     headers: {
                       'Content-Type': "application/json"
                     }
                 });
 
-                
                 const data:RecipeDTO[] = await response.data.data.map(parseRecipe)
                 setRecipes(data)               
             } catch (e:unknown) {
+                console.log(e)
                 await swAlert.confirm({ title:"Error",content: "Unknown error occur.","icon":"error" });
             } finally {
                 setLoading(false);
