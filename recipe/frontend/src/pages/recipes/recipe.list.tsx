@@ -29,13 +29,13 @@ const RecipeList = () => {
     useEffect(()=>{
         const fetchRecipes = async () => {
             setLoading(true);
-
+            console.log("URL"+import.meta.env.VITE_API_URL)
             try {
                 const queryParams = new URLSearchParams({
                     keyword: formData.keyword,
                     tags: formData.category ? ""+formData.category :''
                 }).toString();
-                console.log(import.meta.env.VITE_API_URL)
+                
                 const response = await api.get(import.meta.env.VITE_API_URL+`/recipe?${queryParams}`,{
                     headers: {
                       'Content-Type': "application/json"
@@ -78,9 +78,10 @@ const RecipeList = () => {
                               value={formData.category === null ? '' : formData.category}
                             >
                                 <option value="">All</option>
+                                <option value="3">Main dishes</option>
                                 <option value="1">Meat</option>
                                 <option value="2">Veges</option>
-                                <option value="3">Dessert</option>
+                                
                             </Form.Select>
                         </Form.Group>
 
