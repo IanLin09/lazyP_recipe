@@ -30,18 +30,18 @@ const StoreMap = () => {
           setCenter({ lat: latitude, lng: longitude });
         },
         () => {
-          swAlert.confirm({title:"Error",content:"Something happened",icon:"error"});
+          swAlert.confirm({title:"Error",content:"Something happened (lo1)",icon:"error"});
         }
       );
     } else {
-      swAlert.confirm({title:"Error",content:"Something happened",icon:"error"});
+      swAlert.confirm({title:"Error",content:"Something happened (lo2)",icon:"error"});
     }
   }, []);
 
   // Perform a nearby search using the PlacesService
   const searchNearbyPlaces = useCallback((map: google.maps.Map,location:LatLng) => {
     if (!window.google) {
-      swAlert.confirm({title:"Error",content:"Something happened",icon:"error"});
+      swAlert.confirm({title:"Error",content:"Something happened(near)",icon:"error"});
       return;
     }
 
@@ -62,7 +62,7 @@ const StoreMap = () => {
           }));
           setMarkers(newMarkers);
         } else {
-          swAlert.confirm({title:"Error",content:"Something happened",icon:"error"});
+          swAlert.confirm({title:"Error",content:"Something happened(places)",icon:"error"});
         }
       }
     );
