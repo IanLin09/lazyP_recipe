@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction,ErrorRequestHandler } from "express";
 import { ZodError } from "zod";
-import { Prisma } from "@prisma/client"
+import { PrismaClientInitializationError } from '@prisma/client/runtime/library';
 import { ThrowError } from "../helper/error.js";
 import logger from "../helper/log.js";
 
@@ -22,7 +22,7 @@ export const errorHandler:ErrorRequestHandler = (
     });
   }
 
-  if (err instanceof Prisma.PrismaClientKnownRequestError) {
+  if (err instanceof PrismaClientInitializationError) {
     res.status(409).send({
       status: 409,
       message: 'Sql error',
@@ -30,7 +30,7 @@ export const errorHandler:ErrorRequestHandler = (
     });
   }
 
-  if (err instanceof Prisma.PrismaClientInitializationError) {
+  if (err instanceof PrismaClientInitializationError) {
     res.status(500).send({
       status: 500,
       message: 'Sql error',
