@@ -12,5 +12,4 @@ const swAlert = {
     }
 }
 
-
 export default swAlert

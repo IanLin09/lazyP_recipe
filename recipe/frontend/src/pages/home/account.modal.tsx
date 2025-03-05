@@ -7,7 +7,7 @@ import RegisterForm from '@/pages/home/register.form';
 
 interface Props{
     modalType:string,
-    setModalType:React.Dispatch<React.SetStateAction<string>>,
+    setModalType:((newModal: string) => void) ,
     show: boolean,
     onHide:(() => void) | undefined
 }

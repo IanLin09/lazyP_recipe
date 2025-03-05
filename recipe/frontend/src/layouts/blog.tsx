@@ -1,6 +1,6 @@
 import '@/assets/css/blog-styles.css'
 import '@/assets/css/custom.css'
-import { useEffect,useState } from 'react';
+import { useEffect,useState,Suspense,useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import AccountModal from '@/pages/home/account.modal';
 import { useHeader } from '@/components/header';
@@ -9,7 +9,10 @@ import Menu from "@/pages/home/nav.menu"
 
 const Blog = () => {
     const [modalType,setModalType] = useState("Login")
+    
     const [accountModalShow, setAccountModalShow] = useState(false);
+    const changeModalTypeFn = useCallback((newModal:string) => setModalType(newModal), []);
+    const closeModalFn = useCallback(() => setAccountModalShow(false), []);
     const { headerData } = useHeader();
 
     useEffect(() => {
@@ -35,12 +38,14 @@ const Blog = () => {
             </div>
         </header>
         <div className="">
-            <Outlet />
+            <Suspense>
+                <Outlet />
+            </Suspense>
             <AccountModal
                 modalType={modalType}
-                setModalType={setModalType}
+                setModalType={changeModalTypeFn}
                 show={accountModalShow}
-                onHide={() => setAccountModalShow(false)}
+                onHide={closeModalFn}
             />
         </div>
         <footer className="border-top">

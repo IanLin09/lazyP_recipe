@@ -1,11 +1,14 @@
 import Container from 'react-bootstrap/Container';
-import {useState,useEffect} from "react"
+import {useState, memo} from "react"
 import Collapse  from 'react-bootstrap/Collapse'
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
 import Offcanvas from 'react-bootstrap/Offcanvas';
 import LoginImg from "@/assets/img/login.svg"
 import {auth} from '@/utils/cookie'
+import { loginCheck,UserLogOut } from '@/utils/axios';
+import { useQuery } from '@tanstack/react-query';
+
 
 
 type MenuItem = {
@@ -18,15 +21,48 @@ interface ExpandedState {
   [key: string]: boolean;
 }
 
-interface Props {
+type Props = {
   showLoginModal:(() => void) | undefined
+  loginState?:boolean | undefined
 }
+
+const LoginIcon = memo(({ showLoginModal, loginState }: Props) => {
+  if (loginState){
+    return (
+      <>
+        <Nav.Link onClick={async () => {
+          await UserLogOut();
+          window.location.reload();
+        }}>
+          Log out
+        </Nav.Link>
+      </>
+    )
+  }else{
+    return (
+      <>
+        <Nav.Link onClick={showLoginModal}>
+          <img src={LoginImg} alt="Login" /> Login
+        </Nav.Link>
+      </>
+    )
+  }
+});
 
 const Menu = ({showLoginModal}:Props) => {
 
   const expandMenu = false;
   let menuItems:MenuItem[]
-  if (auth.isAuthenticated()){
+  const [expanded, setExpanded] = useState<ExpandedState>({});
+  
+  const loginStatusQuery = useQuery({
+    queryKey: ['loginStatus'],
+    queryFn: loginCheck,
+    // Refetch every 5 minutes
+    refetchInterval: 5 * 60 * 1000,
+  });
+
+  if (loginStatusQuery.data){
     menuItems = [
       { title: 'Home', link: '/home' },
       {
@@ -51,14 +87,6 @@ const Menu = ({showLoginModal}:Props) => {
     ];
   }
   
-  
-  const [expanded, setExpanded] = useState<ExpandedState>({});
-  const [loginText, setLoginText] = useState<JSX.Element>(
-    <Nav.Link onClick={showLoginModal}>
-      <img src={LoginImg} alt="Login" /> Login
-    </Nav.Link>
-  );
-  
   const toggleExpand = (title:string) => {
       setExpanded(prev => ({
           ...prev,
@@ -80,27 +108,6 @@ const Menu = ({showLoginModal}:Props) => {
     return <>{item.title}</>;
   }
   
-  useEffect(()=>{
-    const token = auth.getToken();
-    if (token) {
-      setLoginText(
-        <Nav.Link onClick={() => {
-          auth.removeToken();
-          window.location.reload();
-        }}>
-          Log out
-        </Nav.Link>
-      );
-      
-    } else {
-      setLoginText(
-        <Nav.Link onClick={showLoginModal}>
-          <img src={LoginImg} alt="Login" /> Login
-        </Nav.Link>
-      );
-    }
-  },[])
-
   return (
     <>
         <Navbar fixed='top' key={`menu-${expandMenu}`} expand={expandMenu} className="bg-body-tertiary mb-2">
@@ -111,7 +118,7 @@ const Menu = ({showLoginModal}:Props) => {
               <h3>LazyP</h3>
               </div>
             </Navbar.Brand>
-            {loginText}
+            <LoginIcon showLoginModal={showLoginModal} loginState={loginStatusQuery.data}/>
             <Navbar.Offcanvas
               id={`offcanvasNavbar-expand-${expandMenu}`}
               aria-labelledby={`offcanvasNavbarLabel-expand-${expandMenu}`}
@@ -211,4 +218,4 @@ const Menu = ({showLoginModal}:Props) => {
   );
 }
 
-export default Menu;
+export default memo(Menu) ;

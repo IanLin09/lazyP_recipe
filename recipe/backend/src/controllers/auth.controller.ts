@@ -34,6 +34,13 @@ class AuthController extends BaseController {
       inputData = await userData
       const token = crypto.randomBytes(32).toString('hex');
       storeData(token,inputData,3600);
+      await res.cookie('auth_token', token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production' ? true : false, // Only over HTTPS in production
+        sameSite: 'lax', //cors
+        maxAge: 3600000 // 1 hour
+      });
+
       this.success(res,{...inputData,token: token})
       
     }catch(e: unknown){
@@ -72,7 +79,9 @@ class AuthController extends BaseController {
 
   logout = async (req: Request, res: Response,next: NextFunction) => {
     try{
-      forgetData(req.headers.authorization?.split(' ')[1]);
+      const token = req.signedCookies.auth_token || req.cookies.auth_token;
+      forgetData(token);
+      res.clearCookie('auth_token', { httpOnly: true });
       this.success(res);
     }catch(e: unknown){
       next(e)
@@ -120,6 +129,16 @@ class AuthController extends BaseController {
       next(e)
     }
   }
+
+  loginStatus = async (req: Request, res: Response,next: NextFunction) => {
+    try{
+      //User login status will be check in middleware
+      this.success(res);
+    }catch(e: unknown){
+      next(e)
+    }
+  }
+
 }
 
 export default AuthController;

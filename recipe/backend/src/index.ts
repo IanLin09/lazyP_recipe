@@ -6,8 +6,7 @@ import Router from './router.js';
 import cors from "cors";
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-
+import cookieParser from 'cookie-parser';
 
 dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
@@ -28,6 +27,7 @@ const port = parseInt(process.env.PORT);
 // });
 const prisma = new PrismaClient();
 
+app.use(cookieParser(process.env.COOKIE_SECRET));
 app.use(express.static(path.join(__dirname, '../../frontend/dist')));
 app.use(cors(corsOptions));
 

@@ -25,6 +25,8 @@ class AuthRoute extends Route{
         this.router.put('/account', authorization,controller.updateUserInfo);
         this.router.patch('/password',authorization,controller.updatePassword);
         this.router.get('/account',authorization,controller.userInfo);
+        this.router.get('/authorization',authorization,controller.loginStatus);
+        this.router.post('/logout',authorization,controller.logout);
     }
 
 }

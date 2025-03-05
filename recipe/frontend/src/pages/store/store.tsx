@@ -23,6 +23,7 @@ const StoreMap = () => {
 
   // Get the user's current position
   const fetchUserLocation = useCallback(() => {
+    
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
         (position) => {
@@ -93,9 +94,6 @@ const StoreMap = () => {
     setHeader("Store","Store location and information")
   }, []);
 
-  if (!isLoaded) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <>

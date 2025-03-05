@@ -1,16 +1,18 @@
 import { Navigate,Routes, Route } from 'react-router-dom';
+import { lazy } from 'react'
 import Layout from "@/layouts/blog.tsx"
 import Home from "@/pages/app.tsx"
-import CreateRecipe from '@/pages/recipes/recipe.create';
-import EditRecipe from '@/pages/recipes/recipe.edit';
-import RecipeList from '@/pages/recipes/recipe.list';
-import Recipe from '@/pages/recipes/recipe'
-import MyRecipeList from '@/pages/recipes/recipe.table';
-import Store from "@/pages/store/store"
-import AccountInfo from "@/pages/acccount/account"
-import PasswordInfo from '@/pages/acccount/password';
 import NotFoundPage from '@/pages/exist';
-import Authorization from '@/components/authorization';
+
+const CreateRecipe = lazy(()=> import("@/pages/recipes/recipe.create"));
+const EditRecipe = lazy(()=> import("@/pages/recipes/recipe.edit"));
+const RecipeList = lazy(()=> import("@/pages/recipes/recipe.list"));
+const Recipe = lazy(()=> import("@/pages/recipes/recipe"));
+const MyRecipeList = lazy(()=> import("@/pages/recipes/recipe.table"));
+const PasswordInfo = lazy(()=> import("@/pages/acccount/password"));
+const Store = lazy(()=> import("@/pages/store/store"));
+const AccountInfo = lazy(()=> import("@/pages/acccount/account"));
+const Authorization = lazy(()=> import("@/components/authorization"));
 
 const Router = () => (
   <Routes>
