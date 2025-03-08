@@ -67,7 +67,6 @@ export const handleSendMail = async (to: string, subject: string, content: strin
         });
       })
       .catch((res) => {
-        console.log(res)
         reject(new Error('Cant get OAuth Access Token'));
       });
   });

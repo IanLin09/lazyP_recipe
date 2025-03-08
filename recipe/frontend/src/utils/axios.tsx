@@ -19,7 +19,6 @@ export const loginCheck = async () => {
   } catch (error) {
       return false;
   }
-  
 }
 
 export const UserLogOut = async () => {

@@ -23,21 +23,30 @@ class RecipeController extends BaseController {
         keyword:keyword
       }
 
-      if (person){
-        const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
-        conditions.id = userData.id
-      }
+      const data = await this.recipeService.all(conditions);
+      this.success(res,data);
+    }catch(e: unknown){
+      next(e);
+    }
+  }
+
+  public myRecipe = async (req: Request, res: Response,next: NextFunction) =>{
+
+    try{
+      const token = req.signedCookies.auth_token || req.cookies.auth_token;
+      const userData: UserDTO = await this.userData(token)
+      const conditions: RecipeDTOs.RecipeConditionsDTO = {id: userData.id}
 
       const data = await this.recipeService.all(conditions);
       this.success(res,data);
     }catch(e: unknown){
       next(e);
     }
-    
   }
 
   public create = async (req: Request, res: Response,next: NextFunction) => {
-    const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+    const token = req.signedCookies.auth_token || req.cookies.auth_token;
+    const userData: UserDTO = await this.userData(token)
     try{
       
       const files = req.files;
@@ -100,10 +109,10 @@ class RecipeController extends BaseController {
   }
 
   public update = async (req: Request, res: Response,next: NextFunction) => {
-    
-    const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+
+      const token = req.signedCookies.auth_token || req.cookies.auth_token;
+      const userData: UserDTO = await this.userData(token)
       try{
-        
         const files = req.files;
         const input = recipeValidation.parse(req.body);
         
@@ -147,6 +156,7 @@ class RecipeController extends BaseController {
         servings:input.servings,
         video_link:input.video_link
       }
+      console.log(inputData.tags)
       await this.recipeService.updateRecipe(input.id,inputData)
       this.success(res);
     }catch(e: unknown){

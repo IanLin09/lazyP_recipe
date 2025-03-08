@@ -1,5 +1,5 @@
 import Form from 'react-bootstrap/Form';
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { AxiosError } from 'axios';
 import Button from 'react-bootstrap/Button';
 import { Alert, Col, Row } from 'react-bootstrap';
@@ -8,46 +8,41 @@ import { UserPasswordDTO } from '@/utils/dto';
 import swAlert from "@/components/alert"
 import { Formik, Field,FormikErrors } from 'formik';
 import { passwordSchema } from '@/utils/validation';
-import { useHeader } from '@/components/header';
 import api from "@/utils/axios"
-import { auth } from '@/utils/cookie';
+import { useMutation } from '@tanstack/react-query';
+
+const passwordUpdate = async (initialValues:UserPasswordDTO) => {
+    const response = await api.post('/password', initialValues, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response;
+}
 
 const PasswordInfo = () => {
-    const { setHeader } = useHeader();
     const [alert, setAlert] = useState<string | null>(null);
-    const [loading, setLoading] = useState(false);
     const [initialValues, setInitialValues] = useState<UserPasswordDTO>({
         newPassword:'',
         oldPassword:'',
         newPasswordConfirm:''
     });
 
-    useEffect(() => {
-
-        setHeader("Account Info", "");
-    }, []);
+    const mutation =  useMutation({
+        mutationFn: passwordUpdate,
+        onSuccess: async () => {
+            setInitialValues({
+                newPassword:'',
+                oldPassword:'',
+                newPasswordConfirm:''
+            })
+            swAlert.confirm({ title:"Success",content: "Update successful" });
+        }
+    });
 
     const handleFormSubmit = async (values:UserPasswordDTO,setErrors: (errors: FormikErrors<UserPasswordDTO>) => void) => {
-        setLoading(true);
         try {
-            const response = await api.put(
-                import.meta.env.VITE_API_URL + '/password',
-                values,
-                {
-                    headers: {
-                        'Content-Type': 'application/json'
-                    }
-                }
-            );
-
-            if (response.data?.status === 200) {
-                setInitialValues({
-                    newPassword:'',
-                    oldPassword:'',
-                    newPasswordConfirm:''
-                })
-                swAlert.confirm({ title:"Success",content: "Update successful" });
-            }
+            await mutation.mutateAsync
         } catch (e: unknown) {
             if (e instanceof AxiosError) {
                 const errorMsg: ErrorResponse = e.response?.data;
@@ -57,19 +52,19 @@ const PasswordInfo = () => {
                         setAlert(errorMsg.message);
                         const errorMap = parseErrors(errorMsg);
                         setErrors(errorMap);
+                        break;
                     }
                     case 401:{
                         await swAlert.confirm({ title:"Error",content: "Please login agian.","icon":"error" });
-                        auth.removeToken()
-                        window.location.replace("/home")
+                        window.location.replace("/home");
+                        break;
                     }
                     default:{
                         setAlert("Unknown error occurred");
+                        break;
                     }
                 }
             }
-        } finally {
-            setLoading(false);
         }
     }
     return (
@@ -142,7 +137,7 @@ const PasswordInfo = () => {
                                     type="submit"
                                     size='lg'
                                     variant="success"
-                                    disabled={loading}
+                                    disabled={mutation.isPending}
                                 >
                                     Update
                                 </Button>

@@ -72,45 +72,10 @@ const LoginForm = (props:Props) => {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     mutation.mutate(formData)
-    
-    //setLoading(true);
     setError({
       email: "",
       password: ""
     });
-    // try {
-    //   const response = await axios.post(import.meta.env.VITE_API_URL+'/login', formData, {
-    //     headers: {
-    //       'Content-Type': 'application/json'
-    //     },
-    //     withCredentials: true
-    //   });
-    //   const userData:UserDTO = {...response.data?.data}
-    //   if (userData.token){
-    //     auth.setToken(userData.token)
-    //   }
-      
-    //   if (response.data?.status == 200){
-    //     props.onHide()
-    //     setAlert(null)
-    //     setFormData({ email: '', password: ''});
-    //     setError({ email: '', password: ''});
-    //     await swAlert.confirm({title:"Success",content:"Login success"});
-    //     window.location.reload();
-    //   }
-      
-    // } catch (err) {
-    //   if (err instanceof AxiosError){
-    //     let errorMsg :ErrorResponse = err.response?.data
-    //     const errorMap = parseErrors(errorMsg);
-    //     setAlert(errorMsg.message)
-    //     setError({...errorMap})
-    //   }else{
-    //     setAlert(err instanceof Error ? err.message : 'An error occurred');
-    //   }
-    // } finally {
-    //   setLoading(false);
-    // }
   };
     
   return (

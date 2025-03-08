@@ -1,4 +1,4 @@
-import { useState,useEffect } from 'react';
+import { useState } from 'react';
 import { RecipeDTO,RecipeMaterialDTO } from '@/utils/dto';
 import api from '@/utils/axios'
 import { useParams } from "react-router-dom";
@@ -8,57 +8,53 @@ import { Container, Row, Col } from 'react-bootstrap';
 import Card from 'react-bootstrap/Card';
 import Carousel from 'react-bootstrap/Carousel';
 import CardWithImg from "@/components/card";
-import { useHeader } from '@/components/header';
-import loadingImg from "@/assets/img/loadingcircles.gif"
+import { useQuery } from '@tanstack/react-query';
+import swAlert from '@/components/alert';
+import { LoadingScene } from '@/components/loading';
+
+
+
+const fetchRecipe = async ({ queryKey }: { queryKey: [string, string] }) => {
+    const [_key, id] = queryKey; // Extract the ID directly
+    const response = await api.get(`/recipe/${id}`);
+    const data: RecipeDTO = await parseRecipe(response.data.data)
+    return data
+};
 
 const RecipePage = () => {
     
-    const { setHeader } = useHeader();
-    const { id } = useParams<{ id: string }>();
-    const [recipe,setRecipe] = useState<RecipeDTO>()
-    const [loading, setLoading] = useState(false);
     const [materialChunk,setMaterialChunk] = useState<RecipeMaterialDTO[][]>([])
+    const { id } = useParams<{ id: string }>();
 
-    
-    useEffect(()=>{
-        const fetchRecipe = async () => {
-            setLoading(true);
+    const { data: recipe, isLoading, isError } = useQuery({
+        queryKey: ['recipe_detail',id] as [string, string],
+        queryFn: fetchRecipe,
+        placeholderData: (lastData) => lastData,
+    });
 
-            try {
-                const response = await api.get(import.meta.env.VITE_API_URL+`/recipe/${id}`);
-                const data:RecipeDTO = await parseRecipe(response.data.data)
-                
-                if (data.materials && materialChunk.length == 0){
-                    let chunk = []
-                    for (let i = 0; i < data.materials.length; i += 3) {
-                        chunk.push(data.materials.slice(i, i + 3));
-                    }
-                    setMaterialChunk(chunk)
-                }
-                
-                await setRecipe(data)
-            } catch (error) {
-                console.error('Error fetching recipe:', error);
-            } finally {
-                setLoading(false);
-            }
-        };
+    if (recipe && recipe.materials && materialChunk.length == 0){
+        let chunk = []
+        for (let i = 0; i < recipe.materials.length; i += 3) {
+            chunk.push(recipe.materials.slice(i, i + 3));
+        }
+        setMaterialChunk(chunk)
+    }
 
-        fetchRecipe();
-        setHeader("Recipes", "Here's the magic happen");
-        return () => {
-            setHeader("LazyP", "For the people who think cooking spend to much time.");
-        };
-    },[]);
+    if (isLoading){
+        return <LoadingScene/>
+    }
 
+    if (isError){
+        swAlert.confirm({ title: "Error", content: "Unknown error occurred.", icon: "error" });
+        return <></>
+    }
 
     return (
         <>
-        {!loading && (
+        {recipe && (
             <Container>
-            
             <Row className="justify-content-center">
-                {recipe?.video_link && (
+                {recipe.video_link && (
                     <Col xs={12} md={8} className="mb-4">
                         <div className="video-wrapper">
                             <YoutubeVideo videoId={recipe.video_link} />
@@ -120,10 +116,6 @@ const RecipePage = () => {
             
         </Container>
         )}
-        
-        {loading && <div className='text-center'>
-                <img className='image-origin' src={loadingImg}></img>
-        </div>}
     </>
     );
 }

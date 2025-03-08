@@ -1,60 +1,63 @@
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
 import Col from 'react-bootstrap/Col';
-import { useState,useEffect,Fragment } from 'react';
+import { useState,Fragment } from 'react';
 import api from '@/utils/axios'
 import { RecipeDTO } from '@/utils/dto';
 import { parseRecipe } from '@/utils/parse';
-import loadingImg from "@/assets/img/loadingcircles.gif"
-import { useHeader } from '@/components/header';
 import swAlert from '@/components/alert';
+import { useQuery } from '@tanstack/react-query';
+import { LoadingScene } from '@/components/loading';
+
 
 type formInput = {
     category: number | null,
     keyword: string
 }
 
+const fetchRecipes = async ({ queryKey }: { queryKey: [string, formInput] }) => {
+    const [_key, { category, keyword }] = queryKey; // Extract filter params
+
+    try {
+        const response = await api.get(`/recipe`, {
+            headers: { 'Content-Type': "application/json" },
+            params: { category, keyword }
+        });
+
+        if (!response.data || !Array.isArray(response.data.data)) {
+            throw new Error("Invalid response format");
+        }
+
+        return response.data.data.map(parseRecipe) as RecipeDTO[];
+    } catch (e) {
+        return []; // Return an empty array to avoid `undefined` errors
+    }
+};
+
 const RecipeList = () => {
 
-    //const [alert, setAlert] = useState<string | null>(null);
-    const { setHeader } = useHeader();
-    const [recipes,setRecipes] = useState<RecipeDTO[]>([])
-    const [loading, setLoading] = useState(false);
     const [keyword,setKeyword] = useState('')
     const [formData, setFormData] = useState<formInput>({
         category: null,
         keyword: ''
     });
 
-    useEffect(()=>{
-        const fetchRecipes = async () => {
-            setLoading(true);
-            try {
-                const queryParams = new URLSearchParams({
-                    keyword: formData.keyword,
-                    tags: formData.category ? ""+formData.category :''
-                }).toString();
-                
-                const response = await api.get(import.meta.env.VITE_API_URL+`/recipe?${queryParams}`,{
-                    headers: {
-                      'Content-Type': "application/json"
-                    }
-                });
+    const { data: recipeList, isLoading, isError } = useQuery({
+        queryKey: ['recipeList', formData] as [string, formInput],  // Ensure `formData` changes trigger refetch
+        queryFn: fetchRecipes, // No direct params, `queryKey` will be used
+        placeholderData: (lastData) => lastData,
+        enabled: !!formData,  // Avoids running when `formData` is null/undefined,
+    });
 
-                const data:RecipeDTO[] = await response.data.data.map(parseRecipe)
-                setRecipes(data)               
-            } catch (e:unknown) {
-                await swAlert.confirm({ title:"Error",content: "Unknown error occur.","icon":"error" });
-            } finally {
-                setLoading(false);
-            }
-        };
-        setHeader("Recipes", "Find your favorite recipes here");
-        fetchRecipes();
-        return () => {
-            setHeader("LazyP", "For the people who think cooking spend to much time.");
-        };
-    },[formData]);
+    if (isLoading){
+        return <LoadingScene/>
+    }
+
+    if (isError){
+        swAlert.confirm({ title: "Error", content: "Unknown error occurred.", icon: "error" });
+        return <></>
+    }
+
     return (
         
         <div className="container px-4 px-lg-5">
@@ -98,17 +101,11 @@ const RecipeList = () => {
                                 value={keyword}
                             />
                         </Form.Group>
-
-                        {/* <Form.Group className="mb-3" as={Col} md="2">
-                            <div className="h-100 d-flex align-items-end">
-                                <Button variant="danger" href="/form/recipe/create">Create</Button>
-                            </div>
-                        </Form.Group> */}
                     </Row>
                 </Form>
                     
-                {recipes && (
-                    recipes.map((recipe,i) => (
+                {recipeList && (
+                    recipeList.map((recipe,i) => (
                         <div key={recipe.id}>
                             <div className="post-preview" >
                                 <a href={`/recipe/${recipe.id}`}>
@@ -128,15 +125,12 @@ const RecipeList = () => {
                                 </p>
                             </div>
                             
-                            {recipes && i < recipes?.length - 1 && <hr className="my-4" />}
+                            {recipeList && i < recipeList?.length - 1 && <hr className="my-4" />}
                         </div>
                     ))
                 )}
             </div>
 
-            {loading && <div className='text-center'>
-                <img className='image-origin' src={loadingImg}></img>
-            </div>}
         </div>
         
     )

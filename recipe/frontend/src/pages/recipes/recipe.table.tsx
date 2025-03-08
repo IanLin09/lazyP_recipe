@@ -1,61 +1,52 @@
 import Badge from 'react-bootstrap/Badge';
 import { Button } from 'react-bootstrap';
-import { useState,useEffect } from 'react';
 import api from '@/utils/axios'
 import { RecipeDTO } from '@/utils/dto';
 import { parseRecipe } from '@/utils/parse';
 import Table from 'react-bootstrap/Table';
-import { useHeader } from '@/components/header';
-import swAlert from '@/components/alert';
 import { AxiosError } from 'axios';
-import { auth } from '@/utils/cookie';
+import { useQuery } from '@tanstack/react-query';
+import { LoadingScene } from '@/components/loading';
+import { useQueryResponseError,errorAlert } from '@/utils/error';
 
+const fetchRecipes = async () => {
+    try {
+        const response = await api.get("my_recipe",{
+            headers: {
+              'Content-Type': "application/json"
+            }
+        });
+        const data:RecipeDTO[] = await response.data.data.map(parseRecipe)
+        return data;
+    } catch (e:unknown) {
+        if (e instanceof AxiosError) {
+            switch (e.response?.status){
+                case 401:{
+                    throw new useQueryResponseError("Please login agian", 401);
+                }
+                default:{
+                    throw new useQueryResponseError("Unknown error occurred", 500);
+                }
+            }
+        }
+    }
+};
 
 const MyRecipeList = () => {
 
-    //const [alert, setAlert] = useState<string | null>(null);
-    const { setHeader } = useHeader();
-    const [recipes,setRecipes] = useState<RecipeDTO[]>([])
+    const { data: recipes, error, isError, isLoading } = useQuery({
+        queryKey: ['myRecipe'],
+        queryFn: fetchRecipes,
+      });
 
+    if (isLoading){
+        return <LoadingScene/>
+    }
 
-    useEffect(()=>{
-        const fetchRecipes = async () => {
-
-            try {
-                const queryParams = new URLSearchParams({
-                    person:"1"
-                }).toString();
-
-                const response = await api.get(import.meta.env.VITE_API_URL+`/recipe?${queryParams}`,{
-                    headers: {
-                      'Content-Type': "application/json"
-                    }
-                });
-                const data:RecipeDTO[] = await response.data.data.map(parseRecipe)
-                setRecipes(data)               
-            } catch (e:unknown) {
-                if (e instanceof AxiosError) {
-                    switch (e.response?.status){
-                        case 401:{
-                            await swAlert.confirm({ title:"Error",content: "Please login agian.","icon":"error" });
-                            auth.removeToken()
-                            window.location.replace("/home")
-                        }
-                        default:{
-                            await swAlert.confirm({ title:"Error",content: "Unknown error occured","icon":"error" });
-                            window.location.replace("/home")
-                        }
-                    }
-                }
-                await swAlert.confirm({ title:"Error",content: "Unknown error occur.","icon":"error" });
-            }
-        };
-        setHeader("My Recipes", "View your recipe and collection");
-        fetchRecipes();
-        return () => {
-            setHeader("LazyP", "For the people who think cooking spend to much time.");
-        };
-    },[]);
+    if (isError){
+        errorAlert(error)
+        return <></>
+    }
     return (
         
         <div className="container px-4 px-lg-5">

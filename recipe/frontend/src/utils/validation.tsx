@@ -1,7 +1,7 @@
 import * as Yup from 'yup';
 
 export const RecipeSchema = Yup.object().shape({
-    name: Yup.string().required('Required'),
+    // name: Yup.string().required('Required'),
     description: Yup.string()
       .required('Required'),
     servings: Yup.number()

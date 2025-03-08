@@ -1,10 +1,9 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState,useCallback } from 'react';
 import Button from 'react-bootstrap/Button';
 import { Alert } from 'react-bootstrap';
 import Col from 'react-bootstrap/Col';
 import Form from 'react-bootstrap/Form';
 import Row from 'react-bootstrap/Row';
-import { useHeader } from '@/components/header';
 import { RecipeDTO,CreateEmptyRecipe, RecipeMaterialDTO, RecipeStepDTO, RecipeTagDTO } from '@/utils/dto';
 import MaterialsGroup from '@/pages/recipes/material.form';
 import StepGroup from '@/pages/recipes/step.form';
@@ -14,19 +13,33 @@ import { ErrorResponse,parseErrors } from '@/utils/error';
 import api from "@/utils/axios"
 import {AxiosError} from 'axios'
 import swAlert from "@/components/alert"
-import { auth } from '@/utils/cookie';
+import { useMutation } from '@tanstack/react-query';
 
 
 
 type FormControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
+const recipeCreate = async (formData:RecipeDTO) => {
+    const response = await api.post('/recipe', formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
+    return response;
+}
+
 const CreateRecipe = () => {
     const { Formik } = formik;
-    
-    const { setHeader } = useHeader();
     const [formData,setFormData] = useState<RecipeDTO>(CreateEmptyRecipe())
     const [alert, setAlert] = useState<string | null>(null);
 
+    const mutation =  useMutation({
+        mutationFn: recipeCreate,
+        onSuccess: async () => {
+            await swAlert.confirm({ title:"Success",content: "Create success."});
+            window.location.href = "/recipe/list"
+        }
+    });
     const handleFormChange = (
         e: React.ChangeEvent<FormControlElement>,
         setFieldValue: (field: string, value: any) => void
@@ -54,32 +67,26 @@ const CreateRecipe = () => {
         }));
     }
 
-    const handleMaterialsChange = (updatedMaterials: RecipeMaterialDTO[]) => {
+    const handleMaterialsChange = useCallback((updatedMaterials: RecipeMaterialDTO[]) => {
         setFormData(prev => ({
             ...prev,
             materials: updatedMaterials
         }));
-    };
+    },[]);
 
-    const handleStepsChange = (updatedSteps: RecipeStepDTO[]) => {
+    const handleStepsChange = useCallback((updatedSteps: RecipeStepDTO[]) => {
         setFormData(prev => ({
             ...prev, 
             steps: updatedSteps
         }));
-    };
+    },[]);
 
     //the part trigger the validation
     const handleFormValidateSubmit = async (e: React.FormEvent<HTMLFormElement>, submitFormik: () => void) => {
         e.preventDefault();
+
         submitFormik()
     };
-
-    useEffect(() => {
-        setHeader("Share Recipe", "I am so pround of my secret recipe");
-        return () => {
-            setHeader("LazyP", "For the people who think cooking spend to much time.");
-        };
-    }, []);
 
     return (
         <div className="container">
@@ -91,19 +98,10 @@ const CreateRecipe = () => {
                 validateOnBlur={false}
                 enableReinitialize
                 //onSubmit={handleFormSubmit}
-                onSubmit={async (_, { setErrors }) => { 
-                    try {
-                        const response = await api.post(import.meta.env.VITE_API_URL+'/recipe', formData, {
-                            headers: {
-                                'Content-Type': 'multipart/form-data'
-                            }
-                        });
-                        if (response.data?.status == 200){
-                            await swAlert.confirm({ title:"Success",content: "Create success."});
-                            window.location.href = "/recipe/list"
-                        }
-                        
-                    } catch (e: unknown) {
+                onSubmit={async (_, { setErrors }) => {
+                    try{
+                        await mutation.mutateAsync(formData)
+                    } catch(e) {
                         if (e instanceof AxiosError) {
                             switch (e.response?.status){
                                 case 400:{
@@ -111,19 +109,21 @@ const CreateRecipe = () => {
                                     setAlert(errorMsg.message);
                                     const errorMap = parseErrors(errorMsg);
                                     setErrors(errorMap);
+                                    break;
                                 }
                                 case 401:{
                                     await swAlert.confirm({ title:"Error",content: "Please login agian.","icon":"error" });
-                                    auth.removeToken()
+                                    break;
                                     window.location.replace("/home")                                    
                                 }
                                 default:{
-                                    setAlert("Unknown error occurred");
+                                    await swAlert.confirm({ title:"Error",content: "unknown error occured","icon":"error" });
+                                    break;
                                 }
                             }
-                            
                         }
                     }
+                    
                 }}
             >
             {({ setFieldValue,handleSubmit,errors }: formik.FormikProps<RecipeDTO>) => (

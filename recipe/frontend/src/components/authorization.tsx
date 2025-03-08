@@ -1,21 +1,26 @@
-import { auth } from '@/utils/cookie';
-import { ReactNode } from 'react';
-import { useLocation, Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
+import { loginCheck } from "@/utils/axios";
+import { LoadingScene } from './loading';
 
-
-interface Props {
-    children: ReactNode
-}
-
-const Authorization = ({ children }:Props) => {
+const Authorization = ({ children }: { children: JSX.Element }) => {
   const location = useLocation();
-  const isAuthenticated = auth.isAuthenticated();
+  
+  const { data: isAuthenticated, isLoading } = useQuery({
+    queryKey: ["authStatus"],
+    queryFn: loginCheck,
+    staleTime: 1000 * 60 * 60, //60 mins
+  });
+
+  if (isLoading) {
+    return <LoadingScene></LoadingScene>
+  }
 
   if (!isAuthenticated) {
-    return <Navigate to="/404" state={{ from: location }} replace />;
+    return <Navigate to="/home" state={{ from: location }} replace />;
   }
 
   return children;
 };
 
-export default Authorization
+export default Authorization;

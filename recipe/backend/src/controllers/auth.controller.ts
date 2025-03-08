@@ -90,7 +90,8 @@ class AuthController extends BaseController {
 
   userInfo = async (req: Request, res: Response,next: NextFunction) => {
     try{
-      const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1]);
+      const token = req.signedCookies.auth_token || req.cookies.auth_token;
+      const userData: UserDTO = await this.userData(token);
       this.success(res,userData);
     }catch(e: unknown){
       next(e)
@@ -98,7 +99,8 @@ class AuthController extends BaseController {
   }
 
   updateUserInfo = async (req: Request, res: Response,next: NextFunction) => {
-    const userData: UserDTO = await this.userData(req.headers.authorization?.split(' ')[1])
+    const token = req.signedCookies.auth_token || req.cookies.auth_token;
+    const userData: UserDTO = await this.userData(token);
     try{
       const input = UserEmailNameValidation.parse(req.body);
       const inputData: UserDTO = {

@@ -1,20 +1,91 @@
 import '@/assets/css/blog-styles.css'
 import '@/assets/css/custom.css'
-import { useEffect,useState,Suspense,useCallback } from 'react';
+import { useEffect,useState,Suspense,useCallback ,memo} from 'react';
 import { Outlet } from 'react-router-dom';
 import AccountModal from '@/pages/home/account.modal';
-import { useHeader } from '@/components/header';
 import Menu from "@/pages/home/nav.menu"
+import { useLocation } from 'react-router-dom';
 
+
+const Header = memo(()=>{
+
+    const location = useLocation();
+
+    const getHeaderText = (pathname:string) => {
+        let path = pathname.split('/');
+        if (/^\d+$/.test(path[path.length-1])){
+            pathname = path.slice(0, -1).join('/');
+        }
+        
+        switch(pathname) {
+            case '/recipe/collection':
+                return (
+                    <>
+                        <h1>Recipes</h1>
+                        <span className="subheading">Find your favorite recipes here</span>
+                    </>
+                );
+            
+            case '/recipe/create':
+            case '/recipe/edit':
+            
+            return (
+                <>
+                    <h1>Share Recipe</h1>
+                    <span className="subheading">I am so pround of my secret recipe</span>
+                </>
+            );
+            case '/recipe/list':
+                return (
+                    <>
+                        <h1>My Recipes</h1>
+                        <span className="subheading">View your recipe and collection</span>
+                    </>
+                );
+            case '/recipe':
+                return (
+                    <>
+                        <h1>Recipes</h1>
+                        <span className="subheading">Here's the magic happen</span>
+                    </>
+                );
+            case '/account':
+            case '/password':
+                return (
+                    <>
+                        <h1>Account Info</h1>
+                    </>
+                );
+            case '/store':
+                return (
+                    <>
+                        <h1>Store</h1>
+                        <span className="subheading">Store location and information</span>
+                    </>
+                );
+          default:
+            return (
+                <>
+                    <h1>LazyP</h1>
+                    <span className="subheading">For the people who think cooking spend to much time.</span>
+                </>
+                
+            );
+        }
+      };
+
+    return (
+        <>
+            {getHeaderText(location.pathname)}
+        </>
+    )
+})
 
 const Blog = () => {
     const [modalType,setModalType] = useState("Login")
-    
     const [accountModalShow, setAccountModalShow] = useState(false);
     const changeModalTypeFn = useCallback((newModal:string) => setModalType(newModal), []);
     const closeModalFn = useCallback(() => setAccountModalShow(false), []);
-    const { headerData } = useHeader();
-
     useEffect(() => {
         if (!accountModalShow) {
           setModalType("Login"); // Reset modalType when modal is closed
@@ -30,8 +101,7 @@ const Blog = () => {
                 <div className="row gx-4 gx-lg-5 justify-content-center">
                     <div className="col-md-10 col-lg-8 col-xl-7">
                         <div className="site-heading">
-                            <h1>{headerData.heading}</h1>
-                            <span className="subheading">{headerData.subheading}</span>
+                            <Header/>
                         </div>
                     </div>
                 </div>
