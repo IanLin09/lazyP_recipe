@@ -156,7 +156,6 @@ class RecipeController extends BaseController {
         servings:input.servings,
         video_link:input.video_link
       }
-      console.log(inputData.tags)
       await this.recipeService.updateRecipe(input.id,inputData)
       this.success(res);
     }catch(e: unknown){
