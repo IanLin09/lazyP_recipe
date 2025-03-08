@@ -149,6 +149,15 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
         }
       })
     }
+
+    republic = async(id:number): Promise<RecipeDTO> => {
+      return this.model.update({
+        where:{id:id},
+        data:{
+          deleted_at:null
+        }
+      })
+    }
 }
 
 export default RecipeRepository

@@ -1,5 +1,6 @@
 import {RecipeDTO,RecipeConditionsDTO, CreateRecipeDTO} from "../type/recipe.dto.js"
 import RecipeRepository from '../repositories/recipe.repository.js';
+import { ThrowError } from "../helper/error.js";
 
 
 class RecipeService{
@@ -33,8 +34,19 @@ class RecipeService{
         return recipe;
     }
 
-    public softDelete = async(id:number) => {
-        await this.RecipeRepository.softDelete(id);
+    public softDelete = async(id:number,userId:number) => {
+        const recipe = await this.RecipeRepository.findById(id);
+
+        if (userId != recipe.user_id){
+            throw new ThrowError(401,'Unauthorized')
+        }
+
+        if (recipe.deleted_at){
+            await this.RecipeRepository.republic(id);
+        }else{
+            await this.RecipeRepository.softDelete(id);
+        }
+        
     }
 }
 

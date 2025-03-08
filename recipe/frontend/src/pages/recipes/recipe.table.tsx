@@ -5,9 +5,13 @@ import { RecipeDTO } from '@/utils/dto';
 import { parseRecipe } from '@/utils/parse';
 import Table from 'react-bootstrap/Table';
 import { AxiosError } from 'axios';
-import { useQuery } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { LoadingScene } from '@/components/loading';
 import { useQueryResponseError,errorAlert } from '@/utils/error';
+import { useState,memo } from 'react';
+import swAlert from '@/components/alert';
+import Swal from "sweetalert2";
+
 
 const fetchRecipes = async () => {
     try {
@@ -31,6 +35,68 @@ const fetchRecipes = async () => {
         }
     }
 };
+
+type props = {
+    recipe:RecipeDTO
+}
+
+const PublicStatus = memo(({recipe}:props) => {
+    const [color,setColor] = useState(recipe.deleted_at ? "danger" : "success");
+    const [text,setText] = useState(recipe.deleted_at ? "Unpublish" : "Publish");
+    const recipeId = recipe.id ? recipe.id : 0
+
+    const updatePublicStatus = async (id:number) => {
+        const response = await api.put(`/recipe/delete/${id}`, {}, {
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        return response;
+    }
+
+    const mutation = useMutation({
+        mutationFn:updatePublicStatus,
+        onSuccess: async () => {
+            setColor(color == "danger" ? "success" : "danger");
+            setText(text == "Unpublish" ? "Publish" : "Unpublish");
+        },
+        onError:async () => {
+            swAlert.confirm({ title: "Error", content: "Unknown error occurred.", icon: "error" });
+        }
+    })
+
+    const handleUpdateComfirm = async (id:number) => {
+        Swal.fire({
+            title: 'Do you want to change public status?',
+            showDenyButton: true,
+            showCancelButton: false,
+            confirmButtonText: 'Yes',
+            denyButtonText: 'No',
+          }).then(async (result) => {
+            if (result.isConfirmed) {
+                try {
+                    await mutation.mutateAsync(id);
+                    Swal.fire('success!', '', 'success');
+                } catch (e: unknown) {
+                    await swAlert.confirm({ title:"Error",content: "Unknown error occurred","icon":"error" });
+                }
+                
+            } 
+          })
+    }
+
+    return (
+        <>
+            <Badge 
+                role="button"
+                style={{ cursor: "pointer" }} 
+                onClick={() => handleUpdateComfirm(recipeId)} 
+                bg={color}>
+                {text}
+            </Badge>
+        </>
+    )
+});
 
 const MyRecipeList = () => {
 
@@ -67,7 +133,7 @@ const MyRecipeList = () => {
                         <tr key={`reciepe-${i}`}>
                             <td>{recipe.id}</td>
                             <td>{recipe.name}</td>
-                            <td><Badge bg="success">Publish</Badge></td>
+                            <td><PublicStatus recipe={recipe} /></td>
                             <td><Button href={`/recipe/edit/${recipe.id}`} variant='warning' size="sm">Edit</Button></td>
                         </tr>
                     )))}

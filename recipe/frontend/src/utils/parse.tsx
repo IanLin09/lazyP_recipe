@@ -21,6 +21,7 @@ export const parseRecipe = (data: any): RecipeDTO => {
         user_id: data.user_id,
         created_at: data.created_at ? new Date(data.created_at) : undefined,
         updated_at: data.updated_at ? new Date(data.updated_at) : undefined,
+        deleted_at: data.deleted_at ? new Date(data.deleted_at) : undefined,
     };
 };
 

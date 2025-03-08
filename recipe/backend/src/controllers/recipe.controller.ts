@@ -4,6 +4,7 @@ import RecipeService from "../services/recipe.service.js";
 import BaseController from "./base.controller.js";
 import {recipeValidation,recipeQuerySchema,recipeStepValidation} from "../helper/validation/recipe.validation.js"
 import { UserDTO } from "../type/auth.dto.js";
+import { ThrowError } from '../helper/error.js';
 
 class RecipeController extends BaseController {
 
@@ -166,8 +167,11 @@ class RecipeController extends BaseController {
   public delete = async(req: Request, res: Response,next: NextFunction) =>{
     
     try{
+      const token = req.signedCookies.auth_token || req.cookies.auth_token;
+      const userData: UserDTO = await this.userData(token)
+
       const id = req.params.id;
-      await this.recipeService.softDelete(parseInt(id))
+      await this.recipeService.softDelete(parseInt(id),userData.id)
       this.success(res);
     }catch(e: unknown){
       next(e);
@@ -181,6 +185,24 @@ class RecipeController extends BaseController {
       res.send("success")
     }catch(e: unknown){
       next(e)
+    }
+  }
+
+  edit = async (req: Request, res: Response,next: NextFunction) => {
+    
+    
+    try{
+      const token = req.signedCookies.auth_token || req.cookies.auth_token;
+      const userData: UserDTO = await this.userData(token)
+      const id = req.params.id;
+      const data: RecipeDTOs.RecipeDTO = await this.recipeService.findUnique(parseInt(id))
+
+      if (userData.id != data.user_id){
+        throw new ThrowError(401,'Unauthorized')
+      }
+      this.success(res,data);
+    }catch(e: unknown){
+      next(e);
     }
   }
 }

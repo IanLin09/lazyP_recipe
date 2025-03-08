@@ -6,7 +6,7 @@ import MaterialsGroup from '@/pages/recipes/material.form';
 import StepGroup from '@/pages/recipes/step.form';
 import * as formik from 'formik';
 import {RecipeSchema} from "@/utils/validation";
-import { ErrorResponse,parseErrors } from '@/utils/error';
+import { ErrorResponse,parseErrors,useQueryResponseError,errorAlert } from '@/utils/error';
 import api from "@/utils/axios"
 import {AxiosError} from 'axios'
 import { parseRecipe } from '@/utils/parse';
@@ -18,13 +18,28 @@ import { LoadingScene } from '@/components/loading';
 
 
 
+
 type FormControlElement = HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement;
 
 const fetchRecipe = async ({ queryKey }: { queryKey: [string, string] }) => {
-    const [_key, id] = queryKey;
-    const response = await api.get(`/recipe/${id}`);
-    const data:RecipeDTO = await parseRecipe(response.data.data);
-    return data
+    
+    try {
+        const [_key, id] = queryKey;
+        const response = await api.get(`/recipe_edit/${id}`);
+        const data:RecipeDTO = await parseRecipe(response.data.data);
+        return data;
+    } catch (e:unknown) {
+        if (e instanceof AxiosError) {
+            switch (e.response?.status){
+                case 401:{
+                    throw new useQueryResponseError("Please login agian", 401);
+                }
+                default:{
+                    throw new useQueryResponseError("Unknown error occurred", 500);
+                }
+            }
+        }
+    }
 };
 
 const recipeUpdate = async (formData:RecipeDTO) => {
@@ -41,20 +56,18 @@ const EditRecipe = () => {
     const { id } = useParams<{ id: string }>();
     const [alert, setAlert] = useState<string | null>("");
     const [formData,setFormData] = useState<RecipeDTO>(CreateEmptyRecipe());
-    const { data: recipe, isSuccess,isLoading, isError } = useQuery({
+    const { data: recipe, isSuccess,isLoading, isError,error } = useQuery({
         queryKey: ['recipe_edit',id] as [string, string],
         queryFn: fetchRecipe,
         placeholderData: (lastData) => lastData,
     });
 
     useMemo(() => {
-        if (isSuccess) {
+        if (isSuccess && recipe) {
           setFormData(recipe);
         }
     }, [isSuccess]);
     
-    
-
     const mutation =  useMutation({
         mutationFn: recipeUpdate,
         onSuccess:async () => {
@@ -115,7 +128,7 @@ const EditRecipe = () => {
     }
 
     if (isError){
-        swAlert.confirm({ title: "Error", content: "Unknown error occurred.", icon: "error" });
+        errorAlert(error)        
         return <></>
     }
 
