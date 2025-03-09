@@ -42,7 +42,7 @@ const PasswordInfo = () => {
 
     const handleFormSubmit = async (values:UserPasswordDTO,setErrors: (errors: FormikErrors<UserPasswordDTO>) => void) => {
         try {
-            await mutation.mutateAsync
+            await mutation.mutateAsync(values);
         } catch (e: unknown) {
             if (e instanceof AxiosError) {
                 const errorMsg: ErrorResponse = e.response?.data;
