@@ -21,7 +21,8 @@ class RecipeController extends BaseController {
 
       let conditions: RecipeDTOs.RecipeConditionsDTO = {
         tags:parseInt(tags),
-        keyword:keyword
+        keyword:keyword,
+        status:true
       }
 
       const data = await this.recipeService.all(conditions);

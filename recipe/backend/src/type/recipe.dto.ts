@@ -36,7 +36,8 @@ export type RecipeStepDTO = {
 export type RecipeConditionsDTO = {
     tags?: number,
     keyword?: string,
-    id?:number
+    id?:number,
+    status?:boolean
 }
 
 export type CreateRecipeDTO = {

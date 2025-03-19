@@ -20,6 +20,13 @@ class RecipeRepository extends BaseRepository<RecipeDTO> {
                   },
                 ]
               : []),
+            ...(conditions.status
+              ? [
+                  {
+                    deleted_at:null
+                  },
+                ]
+              : []),
             ...(conditions.keyword?.length
               ? [
                   {

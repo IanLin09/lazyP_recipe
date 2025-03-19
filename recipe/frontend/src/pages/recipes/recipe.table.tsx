@@ -132,7 +132,7 @@ const MyRecipeList = () => {
                     recipes.map((recipe,i) => (
                         <tr key={`reciepe-${i}`}>
                             <td>{recipe.id}</td>
-                            <td>{recipe.name}</td>
+                            <td><a href={`/recipe/${recipe.id}`}>{recipe.name}</a></td>
                             <td><PublicStatus recipe={recipe} /></td>
                             <td><Button href={`/recipe/edit/${recipe.id}`} variant='warning' size="sm">Edit</Button></td>
                         </tr>
